@@ -65,7 +65,7 @@ else
     [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
     [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
 
-    private Chinook.ClientModels.Playlist Playlist;
+    private Chinook.ClientModels.PlaylistDto Playlist;
     private string CurrentUserId;
     private string InfoMessage;
 
@@ -79,7 +79,7 @@ else
         Playlist = DbContext.Playlists
             .Include(a => a.Tracks).ThenInclude(a => a.Album).ThenInclude(a => a.Artist)
             .Where(p => p.PlaylistId == PlaylistId)
-            .Select(p => new ClientModels.Playlist()
+            .Select(p => new ClientModels.PlaylistDto()
                 {
                     Name = p.Name,
                     Tracks = p.Tracks.Select(t => new ClientModels.PlaylistTrack()

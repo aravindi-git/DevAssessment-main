@@ -1,6 +1,6 @@
 namespace Chinook.ClientModels;
 
-public class Playlist
+public class PlaylistDto
 {
     public string Name { get; set; }
     public List<PlaylistTrack> Tracks { get; set; }

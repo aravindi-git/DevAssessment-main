@@ -34,20 +34,23 @@ else
 }
 
 @code {
-    private List<Artist> Artists;
+    private List<ArtistDto> Artists;
     [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+    [Inject] IArtistService artistService { get; set; }
 
     protected override async Task OnInitializedAsync() {
         await InvokeAsync(StateHasChanged);
         Artists = await GetArtists();
     }
 
-    public async Task<List<Artist>> GetArtists()
-    {   
-        var dbContext = await DbFactory.CreateDbContextAsync();
-        var users = dbContext.Users.Include(a => a.UserPlaylists).ToList();
-        
-        return dbContext.Artists.ToList();
+    public async Task<List<ArtistDto>> GetArtists()
+    {
+        //  var dbContext = await DbFactory.CreateDbContextAsync();
+        // // var users = dbContext.Users.Include(a => a.UserPlaylists).ToList();
+
+        //  return dbContext.Artists.ToList();
+
+        return await artistService.GetAllArtists(); 
     }
 
     public async Task<List<Album>> GetAlbumsForArtist(int artistId)
