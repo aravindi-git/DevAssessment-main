@@ -35,7 +35,7 @@ else
 
 @code {
     private List<ArtistDto> Artists;
-    [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+   // [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
     [Inject] IArtistService artistService { get; set; }
 
     protected override async Task OnInitializedAsync() {
@@ -53,9 +53,9 @@ else
         return await artistService.GetAllArtists(); 
     }
 
-    public async Task<List<Album>> GetAlbumsForArtist(int artistId)
-    {
-        var dbContext = await DbFactory.CreateDbContextAsync();
-        return dbContext.Albums.Where(a => a.ArtistId == artistId).ToList();
-    }
+    // public async Task<List<Album>> GetAlbumsForArtist(int artistId)
+    // {
+    //     var dbContext = await DbFactory.CreateDbContextAsync();
+    //     return dbContext.Albums.Where(a => a.ArtistId == artistId).ToList();
+    // }
 }
