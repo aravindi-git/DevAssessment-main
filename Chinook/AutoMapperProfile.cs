@@ -35,9 +35,11 @@ namespace Chinook
                         dest.Tracks,
                         opt => opt.MapFrom(src => src.Tracks));
 
-            CreateMap<Playlist, ExistingPlaylistDto>(); 
+            CreateMap<Playlist, ExistingPlaylistDto>();
 
+            CreateMap<Playlist, MyPlaylistDto>();
 
+            
         }
     }
 }

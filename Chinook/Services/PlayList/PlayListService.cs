@@ -144,6 +144,24 @@ namespace Chinook.Services.Playlist
 
         }
 
+        public async Task<List<MyPlaylistDto>> GetMyPlayLists(string userId)
+        {
+            try
+            {
+                var myPlaylists = await dbContext.Playlists
+                                    .Include(p => p.UserPlaylists)
+                                    .Where(p => p.UserPlaylists.Any(upl => upl.UserId.Equals(userId)))
+                                    .Select(p => mapper.Map<MyPlaylistDto>(p))
+                                    .ToListAsync();
+
+                return myPlaylists;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred " + ex.Message);
+            }
+        }
+
         public async Task<PlaylistDto> GetTracksOfUserPlaylist(long playlistId, string userId)
         {
             PlaylistDto playlist = new(); 
