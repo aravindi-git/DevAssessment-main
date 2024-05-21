@@ -87,12 +87,17 @@ else
 @code {
     [Parameter] public long ArtistId { get; set; }
     [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
-    [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+    // [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+    [Inject] IArtistService ArtistService { get; set; }
+    [Inject] IAlbumService AlbumService { get; set; }
+
     private Modal PlaylistDialog { get; set; }
 
-    private Artist Artist;
+    private ArtistDto Artist;
     private List<PlaylistTrack> Tracks;
-    private DbContext DbContext;
+    private List<AlbumDto> Albums; 
+    // private List<TrackListItemDto> Tracks;
+    //private DbContext DbContext;
     private PlaylistTrack SelectedTrack;
     private string InfoMessage;
     private string CurrentUserId;
@@ -101,20 +106,24 @@ else
     {
         await InvokeAsync(StateHasChanged);
         CurrentUserId = await GetUserId();
-        var DbContext = await DbFactory.CreateDbContextAsync();
+        //var DbContext = await DbFactory.CreateDbContextAsync();
 
-        Artist = DbContext.Artists.SingleOrDefault(a => a.ArtistId == ArtistId);
+        Artist = await ArtistService.GetArtistById(ArtistId);
 
-        Tracks = DbContext.Tracks.Where(a => a.Album.ArtistId == ArtistId)
-            .Include(a => a.Album)
-            .Select(t => new PlaylistTrack()
-                {
-                    AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
-                    TrackId = t.TrackId,
-                    TrackName = t.Name,
-                    IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == CurrentUserId && up.Playlist.Name == "Favorites")).Any()
-                })
-            .ToList();
+        // Tracks = DbContext.Tracks.Where(a => a.Album.ArtistId == ArtistId)
+        //     .Include(a => a.Album)
+        //     .Select(t => new PlaylistTrack()
+        //         {
+        //             AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
+        //             TrackId = t.TrackId,
+        //             TrackName = t.Name,
+        //             IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == CurrentUserId && up.Playlist.Name == "Favorites")).Any()
+        //         })
+        //     .ToList();
+
+        Tracks = await AlbumService.GetTracksOfArtist(ArtistId);
+
+        Albums = await AlbumService.GetAlbumsOfArtist(ArtistId); 
     }
 
     private async Task<string> GetUserId()

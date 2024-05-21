@@ -1,5 +1,6 @@
 global using Chinook.ClientModels;
-global using Chinook.Services.Artist; 
+global using Chinook.Services.Artist;
+global using Chinook.Services.Album; 
 
 using Chinook;
 using Chinook.Areas.Identity;
@@ -22,7 +23,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ChinookUser>>();
-builder.Services.AddScoped<IArtistService, ArtistService>(); 
+builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IAlbumService, AlbumService>(); 
 
 var app = builder.Build();
 

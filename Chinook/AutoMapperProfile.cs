@@ -9,6 +9,22 @@ namespace Chinook
         {
             CreateMap<Artist, ArtistDto>();
             CreateMap<Album, AlbumDto>();
+
+            CreateMap<Track, PlaylistTrack>()
+                    .ForMember(dest =>
+                        dest.TrackId,
+                        opt => opt.MapFrom(src => src.TrackId))
+                    .ForMember(dest =>
+                        dest.TrackName,
+                        opt => opt.MapFrom(src => src.Name))
+                    .ForMember(dest =>
+                        dest.AlbumTitle,
+                        opt => opt.MapFrom(src => (src.Album == null ) ? String.Empty :  src.Album.Title))
+                    .ForMember(dest =>
+                        dest.ArtistName,
+                        opt => opt.MapFrom(src => (src.Album == null) ? String.Empty : src.Album.Artist.Name));
+
+
         }
     }
 }
