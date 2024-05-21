@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Chinook.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Chinook.Services.Playlist
 {
@@ -15,6 +16,67 @@ namespace Chinook.Services.Playlist
             mapper = _mapper;
         }
 
+        public async Task<UserPlayListDto> AddTrackToMyFavoritePlayList(long trackId, string userId)
+        {
+            try
+            {
+                string favoritePlaylistName = "My favorite tracks";
+                //First we need to check the availability of the Favorites play list. 
+                var favoritePlayList = await dbContext.Playlists
+                                      .Include(p => p.Tracks)
+                                      .Include(p => p.UserPlaylists)
+                                      .AsNoTracking()
+                                      .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName)); 
+
+                var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
+
+                if (favoritePlayList != null && favoritePlayList.PlaylistId > 0)
+                {
+                    if (favoritePlayList.Tracks?.Count > 0)
+                    {
+                        favoritePlayList.Tracks!.Add(track);
+                        await dbContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        List<Track> tracks = [];
+                        favoritePlayList.Tracks = tracks;
+                        favoritePlayList.Tracks!.Add(track);
+                        await dbContext.SaveChangesAsync();
+                    }
+                   
+
+                    var userPlaylist = await dbContext.UserPlaylists.FirstOrDefaultAsync(up => up.PlaylistId == favoritePlayList.PlaylistId && up.UserId.Equals(userId));
+
+                    if(userPlaylist == null )
+                    {
+                        dbContext.UserPlaylists.Add(new UserPlaylist() { UserId = userId, PlaylistId = favoritePlayList.PlaylistId });
+                        await dbContext.SaveChangesAsync();
+                    }
+                   
+                }
+                else
+                {
+                    long playlistId = await CreatePlaylist(favoritePlaylistName);
+                    favoritePlayList = await dbContext.Playlists.FirstAsync(p => p.PlaylistId == playlistId);
+
+                    List<Track> tracks = [];
+                    favoritePlayList.Tracks = tracks;
+                    favoritePlayList.Tracks!.Add(track);
+
+                    dbContext.UserPlaylists.Add(new UserPlaylist() { UserId = userId, PlaylistId = favoritePlayList.PlaylistId });
+                    await dbContext.SaveChangesAsync();
+                }
+
+                return new UserPlayListDto() { SuccessfullyAdded = true };
+
+            }
+            catch (Exception ex)
+            {
+                return new UserPlayListDto() { SuccessfullyAdded = false};
+            }
+           
+        }
 
         public async Task<PlaylistDto> GetTracksOfUserPlaylist(long playlistId, string userId)
         {
@@ -52,6 +114,30 @@ namespace Chinook.Services.Playlist
                 throw new Exception("Error occurred " + ex.Message);
             }
             return playlist; 
+        }
+
+        public Task<UserPlayListDto> RemoveTrackFromMyFavoritePlayList(long trackId, string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async  Task<long> CreatePlaylist(string playlistName)
+        {
+            try
+            {
+                long maxId = dbContext.Playlists.Max(p => p.PlaylistId);
+                var newPlaylist = new Models.Playlist() { PlaylistId= maxId + 1,  Name = playlistName };
+
+                dbContext.Playlists.Add(newPlaylist);
+                await dbContext.SaveChangesAsync();
+
+                return newPlaylist.PlaylistId;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred " + ex.Message);
+            }
+
         }
     }
 }
