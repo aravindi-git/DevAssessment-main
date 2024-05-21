@@ -7,5 +7,7 @@
         Task<UserPlayListDto> AddTrackToMyFavoritePlaylist(long trackId, string userId);
 
         Task<UserPlayListDto> RemoveTrackFromMyFavoritePlaylist(long trackId, string userId);
+
+        Task<List<ExistingPlaylistDto>> GetExistingPlaylists(); 
     }
 }

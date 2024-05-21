@@ -67,11 +67,12 @@ else
         }
 
         <div class="mb-2">
-            <label for="ExistingPlaylist">Add to existing playlist</label>
-            <select class="form-control" id="ExistingPlaylist">
-                <option>Playlist 1</option>
-                <option>Playlist 2</option>
-                <option>Playlist 3</option>
+            <label for="@ExistingPlaylists">Add to existing playlist</label>
+            <select class="form-control" @bind="@SelectedPlaylistId">
+                @foreach (var playlist in ExistingPlaylists)
+                {
+                    <option value="@playlist.PlayListId"> @playlist.Name </option>
+                }
             </select>
         </div>
         <div class="mb-2">
@@ -96,6 +97,8 @@ else
     private List<PlaylistTrack> Tracks;
     private List<AlbumDto> Albums; 
     private PlaylistTrack SelectedTrack;
+    private List<ExistingPlaylistDto> ExistingPlaylists; 
+    private long SelectedPlaylistId; 
     private string InfoMessage;
     private string CurrentUserId;
 
@@ -106,7 +109,9 @@ else
 
         Artist = await ArtistService.GetArtistById(ArtistId);
         Tracks = await AlbumService.GetTracksOfArtist(ArtistId);
-        Albums = await AlbumService.GetAlbumsOfArtist(ArtistId); 
+        Albums = await AlbumService.GetAlbumsOfArtist(ArtistId);
+
+        ExistingPlaylists = await PlaylistService.GetExistingPlaylists(); 
     }
 
     private async Task<string> GetUserId()
@@ -120,43 +125,44 @@ else
     {
         var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        // TODO: add track to Favorites playlist
+        // TODO: add track to Favorites playlist (done)
         var result =  await PlaylistService.AddTrackToMyFavoritePlaylist(trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true )
         {
             track!.IsFavorite = true; 
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist Favorites.";
         }
-       
+
     }
 
     private async Task UnfavoriteTrack(long trackId)
     {
         var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        // TODO: remove track from Favorites playlist
+        // TODO: remove track from Favorites playlist (done)
         var result = await PlaylistService.RemoveTrackFromMyFavoritePlaylist(trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true)
         {
             track!.IsFavorite = false;
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
         }
-        
+
     }
 
     private void OpenPlaylistDialog(long trackId)
     {
         CloseInfoMessage();
-        SelectedTrack = Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        SelectedTrack = Tracks.First(t => t.TrackId == trackId);
         PlaylistDialog.Open();
     }
 
     private void AddTrackToPlaylist()
     {
         // TODO
+        string selectedPlaylistName = ExistingPlaylists.First(p => p.PlayListId == SelectedPlaylistId).Name!; 
 
         CloseInfoMessage();
-        InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {{playlist name}}.";
+        InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
         PlaylistDialog.Close();
     }
 

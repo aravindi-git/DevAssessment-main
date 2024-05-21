@@ -2,6 +2,7 @@
 using Chinook.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Runtime.Serialization;
 
 namespace Chinook.Services.Playlist
 {
@@ -77,6 +78,22 @@ namespace Chinook.Services.Playlist
                 return new UserPlayListDto() { SuccessfullyAdded = false};
             }
            
+        }
+
+        public async Task<List<ExistingPlaylistDto>> GetExistingPlaylists()
+        {
+            try
+            {
+                List<ExistingPlaylistDto> existingPlaylists = await dbContext.Playlists
+                                                             .Select(p => mapper.Map<ExistingPlaylistDto>(p))
+                                                             .ToListAsync();
+                return existingPlaylists;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occurred " + ex.Message);
+            }
+
         }
 
         public async Task<PlaylistDto> GetTracksOfUserPlaylist(long playlistId, string userId)

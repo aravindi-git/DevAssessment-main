@@ -8,6 +8,7 @@ namespace Chinook
         public AutoMapperProfile()
         {
             CreateMap<Artist, ArtistDto>();
+
             CreateMap<Album, AlbumDto>();
 
             CreateMap<Track, PlaylistTrack>()
@@ -32,7 +33,9 @@ namespace Chinook
                         opt => opt.MapFrom(src => src.Name))
                     .ForMember(dest =>
                         dest.Tracks,
-                        opt => opt.MapFrom(src => src.Tracks)); 
+                        opt => opt.MapFrom(src => src.Tracks));
+
+            CreateMap<Playlist, ExistingPlaylistDto>(); 
 
 
         }
