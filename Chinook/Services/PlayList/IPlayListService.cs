@@ -4,9 +4,10 @@
     {
         Task<PlaylistDto> GetTracksOfUserPlaylist (long playlistId, string userId);
 
-        Task<UserPlayListDto> AddTrackToMyFavoritePlaylist(long trackId, string userId);
+        Task<UserPlayListDto> AddTrackToPlaylist(long trackId, string userId);
+        Task<UserPlayListDto> AddTrackToPlaylist(long playlistId, long trackId, string userId);
 
-        Task<UserPlayListDto> RemoveTrackFromMyFavoritePlaylist(long trackId, string userId);
+        Task<UserPlayListDto> RemoveTrackFromPlaylist(long trackId, string userId);
 
         Task<List<ExistingPlaylistDto>> GetExistingPlaylists(); 
     }

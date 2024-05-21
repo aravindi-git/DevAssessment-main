@@ -18,7 +18,7 @@ namespace Chinook.Services.Playlist
             mapper = _mapper;
         }
 
-        public async Task<UserPlayListDto> AddTrackToMyFavoritePlaylist(long trackId, string userId)
+        public async Task<UserPlayListDto> AddTrackToPlaylist(long trackId, string userId)
         {
             try
             {
@@ -80,6 +80,54 @@ namespace Chinook.Services.Playlist
            
         }
 
+        public async Task<UserPlayListDto> AddTrackToPlaylist(long playlistId, long trackId, string userId)
+        {
+            try
+            {
+                var playList = await dbContext.Playlists
+                                       .Include(p => p.Tracks)
+                                       .Include(p => p.UserPlaylists)
+                                       .AsNoTracking()
+                                       .FirstOrDefaultAsync(p => p.PlaylistId == playlistId);
+
+                var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
+
+                if (playList != null && track != null)
+                {
+                    if (playList.Tracks?.Count > 0)
+                    {
+                        playList.Tracks!.Add(track);
+                        await dbContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        List<Track> tracks = [];
+                        playList.Tracks = tracks;
+                        playList.Tracks!.Add(track);
+                        await dbContext.SaveChangesAsync();
+                    }
+
+
+                    var userPlaylist = await dbContext.UserPlaylists.FirstOrDefaultAsync(up => up.PlaylistId == playList.PlaylistId && up.UserId.Equals(userId));
+
+                    if (userPlaylist == null)
+                    {
+                        dbContext.UserPlaylists.Add(new UserPlaylist() { UserId = userId, PlaylistId = playList.PlaylistId });
+                        await dbContext.SaveChangesAsync();
+                    }
+                    return new UserPlayListDto() { SuccessfullyAdded = true };
+                }
+                else
+                {
+                    throw new Exception("The selected playlist or track not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new UserPlayListDto() { SuccessfullyAdded = false };
+            }
+        }
+
         public async Task<List<ExistingPlaylistDto>> GetExistingPlaylists()
         {
             try
@@ -134,7 +182,7 @@ namespace Chinook.Services.Playlist
             return playlist; 
         }
 
-        public async Task<UserPlayListDto> RemoveTrackFromMyFavoritePlaylist(long trackId, string userId)
+        public async Task<UserPlayListDto> RemoveTrackFromPlaylist(long trackId, string userId)
         {
             try
             {
