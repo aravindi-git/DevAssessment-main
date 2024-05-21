@@ -17,20 +17,34 @@ namespace Chinook.Services.Artist
 
         public async Task<List<ArtistDto>> GetAllArtists()
         {
-          List<ArtistDto> artists = await dbContext.Artists
-                                   .Include(a => a.Albums)
-                                   .Select(a => mapper.Map<ArtistDto>(a)).ToListAsync();
+            try
+            {
+                List<ArtistDto> artists = await dbContext.Artists
+                                          .Include(a => a.Albums)
+                                          .Select(a => mapper.Map<ArtistDto>(a)).ToListAsync();
 
-          return artists; 
+                return artists;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Something went wrong " + ex.Message);
+            } 
         }
 
         public async Task<ArtistDto> GetArtistById(long id)
         {
-            ArtistDto  artist = await dbContext.Artists
-                .Where(a => a.ArtistId == id).
-                Select(a => mapper.Map<ArtistDto>(a)).FirstAsync(); 
+            try
+            {
+                ArtistDto artist = await dbContext.Artists
+                                  .Where(a => a.ArtistId == id)
+                                  .Select(a => mapper.Map<ArtistDto>(a)).FirstAsync();
 
-            return artist;
+                return artist;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Something went wrong " + ex.Message);
+            }
         }
     }
 }

@@ -86,18 +86,14 @@ else
 
 @code {
     [Parameter] public long ArtistId { get; set; }
-    [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
-    // [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
     [Inject] IArtistService ArtistService { get; set; }
     [Inject] IAlbumService AlbumService { get; set; }
 
     private Modal PlaylistDialog { get; set; }
-
     private ArtistDto Artist;
     private List<PlaylistTrack> Tracks;
     private List<AlbumDto> Albums; 
-    // private List<TrackListItemDto> Tracks;
-    //private DbContext DbContext;
     private PlaylistTrack SelectedTrack;
     private string InfoMessage;
     private string CurrentUserId;
@@ -106,29 +102,15 @@ else
     {
         await InvokeAsync(StateHasChanged);
         CurrentUserId = await GetUserId();
-        //var DbContext = await DbFactory.CreateDbContextAsync();
 
         Artist = await ArtistService.GetArtistById(ArtistId);
-
-        // Tracks = DbContext.Tracks.Where(a => a.Album.ArtistId == ArtistId)
-        //     .Include(a => a.Album)
-        //     .Select(t => new PlaylistTrack()
-        //         {
-        //             AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
-        //             TrackId = t.TrackId,
-        //             TrackName = t.Name,
-        //             IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == CurrentUserId && up.Playlist.Name == "Favorites")).Any()
-        //         })
-        //     .ToList();
-
         Tracks = await AlbumService.GetTracksOfArtist(ArtistId);
-
         Albums = await AlbumService.GetAlbumsOfArtist(ArtistId); 
     }
 
     private async Task<string> GetUserId()
     {
-        var user = (await authenticationState).User;
+        var user = (await AuthenticationState).User;
         var userId = user.FindFirst(u => u.Type.Contains(ClaimTypes.NameIdentifier))?.Value;
         return userId;
     }
