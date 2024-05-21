@@ -121,7 +121,7 @@ else
         var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
         // TODO: add track to Favorites playlist
-        var result =  await PlaylistService.AddTrackToMyFavoritePlayList(trackId, CurrentUserId);
+        var result =  await PlaylistService.AddTrackToMyFavoritePlaylist(trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true )
         {
             track!.IsFavorite = true; 
@@ -130,13 +130,18 @@ else
        
     }
 
-    private void UnfavoriteTrack(long trackId)
+    private async Task UnfavoriteTrack(long trackId)
     {
         var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
         // TODO: remove track from Favorites playlist
-
-        InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
+        var result = await PlaylistService.RemoveTrackFromMyFavoritePlaylist(trackId, CurrentUserId);
+        if (result.SuccessfullyAdded == true)
+        {
+            track!.IsFavorite = false;
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
+        }
+        
     }
 
     private void OpenPlaylistDialog(long trackId)

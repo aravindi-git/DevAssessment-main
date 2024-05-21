@@ -9,6 +9,7 @@ namespace Chinook.Services.Playlist
     {
         private readonly ChinookContext dbContext;
         private readonly IMapper mapper;
+        private readonly string favoritePlaylistName = "My favorite tracks";
 
         public PlaylistService(ChinookContext _dbContext, IMapper _mapper) 
         { 
@@ -16,11 +17,11 @@ namespace Chinook.Services.Playlist
             mapper = _mapper;
         }
 
-        public async Task<UserPlayListDto> AddTrackToMyFavoritePlayList(long trackId, string userId)
+        public async Task<UserPlayListDto> AddTrackToMyFavoritePlaylist(long trackId, string userId)
         {
             try
             {
-                string favoritePlaylistName = "My favorite tracks";
+               
                 //First we need to check the availability of the Favorites play list. 
                 var favoritePlayList = await dbContext.Playlists
                                       .Include(p => p.Tracks)
@@ -116,9 +117,37 @@ namespace Chinook.Services.Playlist
             return playlist; 
         }
 
-        public Task<UserPlayListDto> RemoveTrackFromMyFavoritePlayList(long trackId, string userId)
+        public async Task<UserPlayListDto> RemoveTrackFromMyFavoritePlaylist(long trackId, string userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+
+                var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
+
+                var favoritePlayList = await dbContext.Playlists
+                                          .Include(p => p.Tracks)
+                                          .Include(p => p.UserPlaylists)
+                                          .AsNoTracking()
+                                          .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName));
+
+                if (track != null && favoritePlayList != null)
+                {
+                    favoritePlayList.Tracks!.Remove(track);
+                    await dbContext.SaveChangesAsync();
+                    return new UserPlayListDto() { SuccessfullyAdded = true };
+                }
+                else
+                {
+                    //throw new Exception("The given track or relevant playlist not found.");
+                    return new UserPlayListDto() { SuccessfullyAdded = false };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new UserPlayListDto() { SuccessfullyAdded = false };
+            }
+
+          
         }
 
         private async  Task<long> CreatePlaylist(string playlistName)
