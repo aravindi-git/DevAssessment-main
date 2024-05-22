@@ -2,6 +2,7 @@
 using Chinook.Models;
 using Chinook.Pages;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Chinook.Services.Album
 {
@@ -9,33 +10,37 @@ namespace Chinook.Services.Album
     {
         private readonly ChinookContext dbContext;
         private readonly IMapper mapper;
-        private readonly string favoritePlaylistName = "My favorite tracks";
+        private readonly ILogger<AlbumService> logger;
+        private const string favoritePlaylistName = "My favorite tracks";
 
-        public AlbumService(ChinookContext _dbcontext, IMapper _mapper)
+        public AlbumService(ChinookContext _dbcontext, IMapper _mapper, ILogger<AlbumService> _logger)
         {
             dbContext = _dbcontext;
             mapper = _mapper;
+            logger = _logger;
         }
 
         public async Task<List<AlbumDto>> GetAlbumsOfArtist(long aristId)
         {
+            List<AlbumDto> albums = [];
             try
             {
-                List<AlbumDto> albums = [];
-
                 albums = await dbContext.Albums
                         .Include(t => t.Tracks)
-                        .Where(a => a.ArtistId == aristId).Select(a => mapper.Map<AlbumDto>(a)).ToListAsync();
+                        .Where(a => a.ArtistId == aristId)
+                        .Select(a => mapper.Map<AlbumDto>(a))
+                        .ToListAsync();
 
-                return albums;
             }
             catch (Exception ex)
             {
-                throw new Exception("Something went wrong " + ex.Message);
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
             }
+            return albums;
         }
         public async Task<List<PlaylistTrackDto>> GetTracksOfArtist(long aristId, string userId)
         {
+            List<PlaylistTrackDto> playlistTrackDtos = []; 
             try
             {
                 var tracks = await dbContext.Tracks
@@ -48,19 +53,18 @@ namespace Chinook.Services.Album
                                 IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name.Equals(favoritePlaylistName)))
                             }).ToListAsync();
 
-                var playlistTrackDtos = tracks.Select(t =>
+                playlistTrackDtos = tracks.Select(t =>
                 {
                     var dto = mapper.Map<PlaylistTrackDto>(t.Track);
                     dto.IsFavorite = t.IsFavorite;
                     return dto;
                 }).ToList();
-
-                return playlistTrackDtos; 
             }
             catch (Exception ex)
             {
-                throw new Exception("Something went wrong " + ex.Message);
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
             }
+            return playlistTrackDtos;
         }
     }
 }

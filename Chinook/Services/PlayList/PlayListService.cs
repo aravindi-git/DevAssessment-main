@@ -5,6 +5,7 @@ using Chinook.Pages;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Chinook.Services.Playlist
@@ -14,11 +15,13 @@ namespace Chinook.Services.Playlist
         private readonly ChinookContext dbContext;
         private readonly IMapper mapper;
         private readonly string favoritePlaylistName = "My favorite tracks";
+        private readonly ILogger<PlaylistService> logger;
 
-        public PlaylistService(ChinookContext _dbContext, IMapper _mapper) 
+        public PlaylistService(ChinookContext _dbContext, IMapper _mapper, ILogger<PlaylistService> _logger) 
         { 
             dbContext = _dbContext;
             mapper = _mapper;
+            logger = _logger; 
         }
 
         public async Task<UserPlayListDto> AddTrackToFavoritePlaylist(long trackId, string userId)
@@ -83,6 +86,7 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
                 return new UserPlayListDto() { SuccessfullyAdded = false};
             }
            
@@ -133,6 +137,7 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
                 return new UserPlayListDto() { SuccessfullyAdded = false };
             }
         }
@@ -167,43 +172,43 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
-
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
                 return new UserPlayListDto() { Message = ex.Message, SuccessfullyAdded = false };
             }
         }
 
         public async Task<List<ExistingPlaylistDto>> GetExistingPlaylists()
         {
+            List<ExistingPlaylistDto> existingPlaylists = []; 
             try
             {
-                List<ExistingPlaylistDto> existingPlaylists = await dbContext.Playlists
-                                                             .Select(p => mapper.Map<ExistingPlaylistDto>(p))
-                                                             .ToListAsync();
-                return existingPlaylists;
+               existingPlaylists = await dbContext.Playlists
+                                  .Select(p => mapper.Map<ExistingPlaylistDto>(p))
+                                  .ToListAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Error occurred " + ex.Message);
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
             }
-
+            return existingPlaylists;
         }
 
         public async Task<List<MyPlaylistDto>> GetMyPlayLists(string userId)
         {
+            List<MyPlaylistDto> myPlaylists = []; 
             try
             {
-                var myPlaylists = await dbContext.Playlists
-                                    .Include(p => p.UserPlaylists)
-                                    .Where(p => p.UserPlaylists.Any(upl => upl.UserId.Equals(userId)))
-                                    .Select(p => mapper.Map<MyPlaylistDto>(p))
-                                    .ToListAsync();
-
-                return myPlaylists;
+                 myPlaylists = await dbContext.Playlists
+                               .Include(p => p.UserPlaylists)
+                               .Where(p => p.UserPlaylists.Any(upl => upl.UserId.Equals(userId)))
+                               .Select(p => mapper.Map<MyPlaylistDto>(p))
+                               .ToListAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Error occurred " + ex.Message);
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
             }
+            return myPlaylists;
         }
 
         public async Task<PlaylistDto> GetTracksOfUserPlaylist(long playlistId, string userId)
@@ -224,14 +229,12 @@ namespace Chinook.Services.Playlist
                     playlistDto.Tracks.ForEach(t => t.IsFavorite = true); 
                 }
 
-                return playlistDto;
-
             }
             catch (Exception ex)
             {
-                throw new Exception("Error occurred " + ex.Message);
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
             }
-            
+            return playlistDto;
         }
 
         public async Task<UserPlayListDto> RemoveTrackFromFavoritePlaylist(long trackId, string userId)
@@ -239,9 +242,9 @@ namespace Chinook.Services.Playlist
             try
             {
                 var favoritePlayList = await dbContext.Playlists
-                                          .Include(p => p.Tracks)
-                                          .Include(p => p.UserPlaylists)
-                                          .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName));
+                                      .Include(p => p.Tracks)
+                                      .Include(p => p.UserPlaylists)
+                                      .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName));
 
                 var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
               
@@ -256,12 +259,12 @@ namespace Chinook.Services.Playlist
                 }
                 else
                 {
-                    //throw new Exception("The given track or relevant playlist not found.");
                     return new UserPlayListDto() { SuccessfullyAdded = false };
                 }
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
                 return new UserPlayListDto() { SuccessfullyAdded = false };
             }
         }
@@ -271,9 +274,9 @@ namespace Chinook.Services.Playlist
             try
             {
                 var playList = await dbContext.Playlists
-                                          .Include(p => p.Tracks)
-                                          .Include(p => p.UserPlaylists)
-                                          .FirstOrDefaultAsync(p => p.PlaylistId == playlistId);
+                              .Include(p => p.Tracks)
+                              .Include(p => p.UserPlaylists)
+                              .FirstOrDefaultAsync(p => p.PlaylistId == playlistId);
 
                 var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
                 
@@ -288,12 +291,12 @@ namespace Chinook.Services.Playlist
                 }
                 else
                 {
-                    //throw new Exception("The given track or relevant playlist not found.");
                     return new UserPlayListDto() { SuccessfullyAdded = false };
                 }
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
                 return new UserPlayListDto() { SuccessfullyAdded = false };
             }
         }
@@ -302,7 +305,6 @@ namespace Chinook.Services.Playlist
         {
             try
             {
-               
                 var newPlaylist = new Models.Playlist() { Name = playlistName };
 
                 dbContext.Playlists.Add(newPlaylist);
@@ -312,7 +314,8 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
-                throw new Exception("Error occurred " + ex.Message);
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                return 0; 
             }
 
         }

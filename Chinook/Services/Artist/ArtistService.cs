@@ -8,43 +8,48 @@ namespace Chinook.Services.Artist
     public class ArtistService : IArtistService
     {
         private readonly ChinookContext dbContext;
-        private readonly IMapper mapper; 
+        private readonly IMapper mapper;
+        private readonly ILogger<ArtistService> logger;
 
-        public ArtistService (ChinookContext _dbcontext, IMapper _mapper) {
+        public ArtistService (ChinookContext _dbcontext, IMapper _mapper, ILogger<ArtistService> _logger)
+        {
             dbContext = _dbcontext;
             mapper = _mapper;
+            logger = _logger;
         }
 
         public async Task<List<ArtistDto>> GetAllArtists()
         {
+            List<ArtistDto> artists = [];
             try
             {
-                List<ArtistDto> artists = await dbContext.Artists
-                                          .Include(a => a.Albums)
-                                          .Select(a => mapper.Map<ArtistDto>(a)).ToListAsync();
-
-                return artists;
+               artists = await dbContext.Artists
+                        .Include(a => a.Albums)
+                        .Select(a => mapper.Map<ArtistDto>(a))
+                        .ToListAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Something went wrong " + ex.Message);
-            } 
+                logger.LogError(ex, "Exception occurred: " + ex.Message); 
+            }
+            return artists;
         }
 
         public async Task<ArtistDto> GetArtistById(long id)
         {
+            ArtistDto artist = new(); 
             try
             {
-                ArtistDto artist = await dbContext.Artists
-                                  .Where(a => a.ArtistId == id)
-                                  .Select(a => mapper.Map<ArtistDto>(a)).FirstAsync();
-
-                return artist;
+                artist = await dbContext.Artists
+                        .Where(a => a.ArtistId == id)
+                        .Select(a => mapper.Map<ArtistDto>(a))
+                        .FirstAsync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Something went wrong " + ex.Message);
+                logger.LogError(ex, "Exception occurred: " + ex.Message);
             }
+            return artist;
         }
     }
 }
