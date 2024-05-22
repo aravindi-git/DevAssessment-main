@@ -23,19 +23,22 @@ namespace Chinook.Services.Playlist
             logger = _logger; 
         }
 
+        // Make a track as favorite track. 
         public async Task<UserPlayListDto> AddTrackToFavoritePlaylist(long trackId, string userId)
         {
             try
             {
-                //First we need to check the availability of the Favorites play list. 
+                //First we need to check the availability of the Favorites playlist. 
                 var favoritePlayList = await dbContext.Playlists
                                       .Include(p => p.Tracks)
                                       .Include(p => p.UserPlaylists)
                                       .FirstOrDefaultAsync(p => p.Name!.Equals(ChinookConstants.MyFavoriteTracks));
 
+                // Here we are getting the selected track from the database. 
                 var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
 
-                if(track != null )
+                //Here, Attach is used to bring the favoritePlayList and track into the context, and then their states are explicitly set to Modified to do the changes.
+                if (track != null )
                 {
                     dbContext.Tracks.Attach(track);
                 }
@@ -91,6 +94,7 @@ namespace Chinook.Services.Playlist
            
         }
 
+        // Add a track to a given playlist
         public async Task<UserPlayListDto> AddTrackToPlaylist(long playlistId, long trackId, string userId)
         {
             try
@@ -141,6 +145,7 @@ namespace Chinook.Services.Playlist
             }
         }
 
+        //Create a new playlist
         public async Task<UserPlayListDto> CreatePlaylist(string playlistName, long trackId, string userId)
         {
             try
@@ -149,6 +154,7 @@ namespace Chinook.Services.Playlist
                                             .AsNoTracking()
                                             .FirstOrDefaultAsync(p => p.Name!.Equals(playlistName));
 
+                // if a playlist with the same name is already available, we are not creating a new playlist to avoid duplicates. 
                 if (existinglayList != null)
                 {
                     return new UserPlayListDto() { Message = "This playlist is already exists", SuccessfullyAdded = false };
@@ -176,6 +182,7 @@ namespace Chinook.Services.Playlist
             }
         }
 
+        // Fetch the existing playlists
         public async Task<List<ExistingPlaylistDto>> GetExistingPlaylists()
         {
             List<ExistingPlaylistDto> existingPlaylists = []; 
@@ -192,6 +199,7 @@ namespace Chinook.Services.Playlist
             return existingPlaylists;
         }
 
+        // Fetch the list of the User Created playlists
         public async Task<List<MyPlaylistDto>> GetMyPlayLists(string userId)
         {
             List<MyPlaylistDto> myPlaylists = []; 
@@ -210,6 +218,7 @@ namespace Chinook.Services.Playlist
             return myPlaylists;
         }
 
+        // Get Tracks of the User Created playlists
         public async Task<PlaylistDto> GetTracksOfUserPlaylist(long playlistId, string userId)
         {
             PlaylistDto playlistDto = new(); 
@@ -218,7 +227,7 @@ namespace Chinook.Services.Playlist
                 var playlist = await dbContext.Playlists
                                .Include(p => p.Tracks)
                                     .ThenInclude(t => t.Album).ThenInclude(a => a.Artist)
-                               .Include(p => p.UserPlaylists)
+                               //.Include(p => p.UserPlaylists)
                                .Where(p => p.PlaylistId == playlistId)
                                .FirstOrDefaultAsync();
 
@@ -236,7 +245,8 @@ namespace Chinook.Services.Playlist
             return playlistDto;
         }
 
-        public async Task<UserPlayListDto> RemoveTrackFromFavoritePlaylist(long trackId, string userId)
+        // Remove a track from the favorite playlist
+        public async Task<UserPlayListDto> RemoveTrackFromFavoritePlaylist(long trackId)
         {
             try
             {
@@ -268,7 +278,8 @@ namespace Chinook.Services.Playlist
             }
         }
 
-        public  async Task<UserPlayListDto> RemoveTrackFromPlaylist(long playlistId, long trackId, string userId)
+        // Remove a track from a playlist
+        public  async Task<UserPlayListDto> RemoveTrackFromPlaylist(long playlistId, long trackId)
         {
             try
             {
@@ -300,6 +311,7 @@ namespace Chinook.Services.Playlist
             }
         }
 
+        // Create a new playlist by providing a name. 
         private async  Task<long> CreatePlaylist(string playlistName)
         {
             try

@@ -19,6 +19,7 @@ namespace Chinook.Services.Album
             logger = _logger;
         }
 
+        // Fetching the albums of a given Atrist. 
         public async Task<List<AlbumDto>> GetAlbumsOfArtist(long aristId)
         {
             List<AlbumDto> albums = [];
@@ -37,6 +38,8 @@ namespace Chinook.Services.Album
             }
             return albums;
         }
+
+        // Fetching the tracks of a given Atrist. 
         public async Task<List<PlaylistTrackDto>> GetTracksOfArtist(long aristId, string userId)
         {
             List<PlaylistTrackDto> playlistTrackDtos = []; 

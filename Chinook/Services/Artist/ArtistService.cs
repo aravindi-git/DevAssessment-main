@@ -18,6 +18,7 @@ namespace Chinook.Services.Artist
             logger = _logger;
         }
 
+        // Fetching all the Artists from the database. 
         public async Task<List<ArtistDto>> GetAllArtists()
         {
             List<ArtistDto> artists = [];
@@ -35,6 +36,7 @@ namespace Chinook.Services.Artist
             return artists;
         }
 
+        // Fetching an Artist's by providing the Id. 
         public async Task<ArtistDto> GetArtistById(long id)
         {
             ArtistDto artist = new(); 

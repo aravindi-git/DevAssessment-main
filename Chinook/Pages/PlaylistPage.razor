@@ -103,7 +103,7 @@ else
     {
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        var result = await PlaylistService.RemoveTrackFromPlaylist(PlaylistId, trackId, CurrentUserId);
+        var result = await PlaylistService.RemoveTrackFromPlaylist(PlaylistId, trackId);
         if (result.SuccessfullyAdded == true)
         {
             track!.IsFavorite = false;
