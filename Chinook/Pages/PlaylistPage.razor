@@ -51,7 +51,7 @@ else
                                 }
 
                             }
-                            <a href="#" class="m-1" title="Remove from this playlist" @onclick="@(() => RemoveTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-trash"></i></a>
+                          @*   <a href="#" class="m-1" title="Remove from this playlist" @onclick="@(() => RemoveTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-trash"></i></a> *@
                         </div>
                     </td>
                 </tr>
@@ -68,6 +68,7 @@ else
     private PlaylistDto Playlist;
     private string CurrentUserId;
     private string InfoMessage;
+    private PlaylistTrackDto SelectedTrack;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,7 +90,7 @@ else
     {
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        var result = await PlaylistService.AddTrackToFavoritePlaylist(trackId, CurrentUserId);
+        var result = await PlaylistService.AddTrackToPlaylist(PlaylistId, trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true)
         {
             track!.IsFavorite = true;
@@ -107,7 +108,7 @@ else
     {
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        var result = await PlaylistService.RemoveTrackFromPlaylist(trackId, CurrentUserId);
+        var result = await PlaylistService.RemoveTrackFromPlaylist(PlaylistId, trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true)
         {
             track!.IsFavorite = false;
@@ -119,11 +120,6 @@ else
         }
     }
 
-    private void RemoveTrack(long trackId)
-    {
-        // TODO
-        CloseInfoMessage();
-    }
 
     private void CloseInfoMessage()
     {

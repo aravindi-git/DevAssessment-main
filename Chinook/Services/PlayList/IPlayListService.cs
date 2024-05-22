@@ -8,7 +8,8 @@
 
         Task<UserPlayListDto> AddTrackToPlaylist (long playlistId, long trackId, string userId);
 
-        Task<UserPlayListDto> RemoveTrackFromPlaylist (long trackId, string userId);
+        Task<UserPlayListDto> RemoveTrackFromPlaylist (long playlistId, long trackId, string userId);
+        Task<UserPlayListDto> RemoveTrackFromFavoritePlaylist(long trackId, string userId);
 
         Task<List<ExistingPlaylistDto>> GetExistingPlaylists ();
 
