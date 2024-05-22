@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Chinook.Models;
+using Chinook.Pages;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.Services.Album
@@ -7,6 +9,7 @@ namespace Chinook.Services.Album
     {
         private readonly ChinookContext dbContext;
         private readonly IMapper mapper;
+        private readonly string favoritePlaylistName = "My favorite tracks";
 
         public AlbumService(ChinookContext _dbcontext, IMapper _mapper)
         {
@@ -31,19 +34,28 @@ namespace Chinook.Services.Album
                 throw new Exception("Something went wrong " + ex.Message);
             }
         }
-        public async Task<List<PlaylistTrackDto>> GetTracksOfArtist(long aristId)
+        public async Task<List<PlaylistTrackDto>> GetTracksOfArtist(long aristId, string userId)
         {
             try
             {
-                List<PlaylistTrackDto> tracks = [];
+                var tracks = await dbContext.Tracks
+                            .Include(t => t.Album)
+                            .Include(t => t.Playlists)
+                            .Where(t => t.Album!.ArtistId == aristId)
+                            .Select(t => new
+                            {
+                                Track = t,
+                                IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name.Equals(favoritePlaylistName)))
+                            }).ToListAsync();
 
-                tracks = await dbContext.Tracks
-                        .Include(t => t.Album)
-                        .Where(t => t.Album!.ArtistId == aristId)
-                        .Select(t => mapper.Map<PlaylistTrackDto>(t)).ToListAsync();
+                var playlistTrackDtos = tracks.Select(t =>
+                {
+                    var dto = mapper.Map<PlaylistTrackDto>(t.Track);
+                    dto.IsFavorite = t.IsFavorite;
+                    return dto;
+                }).ToList();
 
-
-                return tracks;
+                return playlistTrackDtos; 
             }
             catch (Exception ex)
             {

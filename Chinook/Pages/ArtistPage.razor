@@ -109,7 +109,7 @@ else
         CurrentUserId = await GetUserId();
 
         Artist = await ArtistService.GetArtistById(ArtistId);
-        Tracks = await AlbumService.GetTracksOfArtist(ArtistId);
+        Tracks = await AlbumService.GetTracksOfArtist(ArtistId, CurrentUserId);
         Albums = await AlbumService.GetAlbumsOfArtist(ArtistId);
 
         ExistingPlaylists = await PlaylistService.GetExistingPlaylists(); 
@@ -173,15 +173,13 @@ else
             {
                 CloseInfoMessage();
                 InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
-
             }
             else
             {
                 InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} did not add to playlist {selectedPlaylistName}.";
             }
-
             SelectedPlaylistId = 0;
-            PlaylistDialog.Close();
+           
         }
         else if (!String.IsNullOrEmpty(NewPlaylistName))
         {
@@ -191,15 +189,15 @@ else
             {
                 CloseInfoMessage();
                 InfoMessage = $"New playlist {NewPlaylistName} added to playlist is created .";
-
             }
             else
             {
                 InfoMessage = $"New playlist {NewPlaylistName} added to playlist is not created .";
             }
+            NewPlaylistName = String.Empty; 
         }
 
-
+        PlaylistDialog.Close();
     }
 
     private void CloseInfoMessage()

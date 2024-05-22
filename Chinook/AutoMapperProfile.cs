@@ -16,6 +16,7 @@ namespace Chinook
                     .ForMember(dest => dest.TrackName, opt => opt.MapFrom(src => src.Name))
                     .ForMember(dest => dest.AlbumTitle, opt => opt.MapFrom(src => (src.Album == null) ? String.Empty : src.Album.Title))
                     .ForMember(dest => dest.ArtistName, opt => opt.MapFrom(src => (src.Album == null) ? String.Empty : src.Album.Artist.Name));
+                    //.ForMember(dest => dest.IsFavorite, opt => opt.Ignore());
 
             CreateMap<Playlist, PlaylistDto>()
                     .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))

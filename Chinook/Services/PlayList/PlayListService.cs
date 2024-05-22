@@ -209,42 +209,19 @@ namespace Chinook.Services.Playlist
         public async Task<PlaylistDto> GetTracksOfUserPlaylist(long playlistId, string userId)
         {
             PlaylistDto playlistDto = new(); 
-
             try
             {
                 var playlist = await dbContext.Playlists
                                .Include(p => p.Tracks)
-                               .ThenInclude(t => t.Album).ThenInclude(a => a.Artist)
+                                    .ThenInclude(t => t.Album).ThenInclude(a => a.Artist)
+                               .Include(p => p.UserPlaylists)
                                .Where(p => p.PlaylistId == playlistId)
                                .FirstOrDefaultAsync();
 
                 if (playlist !=  null)
                 {
-
                     playlistDto = mapper.Map<PlaylistDto>(playlist);
-
-                    if (playlist.Name.Equals(favoritePlaylistName))
-                    {
-                        playlistDto.Tracks = playlist.Tracks.Select(t => new PlaylistTrackDto
-                        {
-                            AlbumTitle = t.Album.Title,
-                            ArtistName = t.Album.Artist.Name,
-                            TrackId = t.TrackId,
-                            TrackName = t.Name,
-                            IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name.Equals(favoritePlaylistName)))
-                        }).ToList();
-                    }
-                    else
-                    {
-                        playlistDto.Tracks = playlist.Tracks.Select(t => new PlaylistTrackDto
-                        {
-                            AlbumTitle = t.Album.Title,
-                            ArtistName = t.Album.Artist.Name,
-                            TrackId = t.TrackId,
-                            TrackName = t.Name,
-                            IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.PlaylistId == playlistId))
-                        }).ToList();
-                    } 
+                    playlistDto.Tracks.ForEach(t => t.IsFavorite = true); 
                 }
 
                 return playlistDto;
