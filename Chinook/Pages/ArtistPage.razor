@@ -126,12 +126,15 @@ else
     {
         var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        // TODO: add track to Favorites playlist (done)
         var result =  await PlaylistService.AddTrackToFavoritePlaylist(trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true )
         {
             track!.IsFavorite = true; 
-            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist Favorites.";
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist My favorite tracks.";
+        }
+        else
+        {
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not add to playlist My favorite tracks.";
         }
 
     }
@@ -140,12 +143,15 @@ else
     {
         var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        // TODO: remove track from Favorites playlist (done)
         var result = await PlaylistService.RemoveTrackFromPlaylist(trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true)
         {
             track!.IsFavorite = false;
-            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist My favorite tracks.";
+        }
+        else
+        {
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not remove from playlist My favorite tracks.";
         }
 
     }
@@ -159,7 +165,6 @@ else
 
     private async Task AddTrackToPlaylist()
     {
-        // TODO
         if (SelectedPlaylistId > 0 )
         {
             string selectedPlaylistName = ExistingPlaylists.First(p => p.PlayListId == SelectedPlaylistId).Name!;

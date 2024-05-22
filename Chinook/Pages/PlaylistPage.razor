@@ -85,22 +85,38 @@ else
         return userId;
     }
 
-    private void FavoriteTrack(long trackId)
+    private async Task FavoriteTrack(long trackId)
     {
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        // TODO: add track to Favorites playlist
+        var result = await PlaylistService.AddTrackToFavoritePlaylist(trackId, CurrentUserId);
+        if (result.SuccessfullyAdded == true)
+        {
+            track!.IsFavorite = true;
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist My favorite tracks.";
+        }
+        else
+        {
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not add to playlist My favorite tracks.";
+        }
 
-        InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist Favorites.";
+       
     }
 
-    private void UnfavoriteTrack(long trackId)
+    private async Task UnfavoriteTrack(long trackId)
     {
         var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        // TODO: remove track from Favorites playlist
-
-        InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
+        var result = await PlaylistService.RemoveTrackFromPlaylist(trackId, CurrentUserId);
+        if (result.SuccessfullyAdded == true)
+        {
+            track!.IsFavorite = false;
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist My favorite tracks.";
+        }
+        else
+        {
+            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not remove from playlist My favorite tracks.";
+        }
     }
 
     private void RemoveTrack(long trackId)

@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Chinook.Models;
+using Chinook.Pages;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Runtime.Serialization;
 
@@ -26,10 +29,12 @@ namespace Chinook.Services.Playlist
                 var favoritePlayList = await dbContext.Playlists
                                       .Include(p => p.Tracks)
                                       .Include(p => p.UserPlaylists)
-                                      .AsNoTracking()
-                                      .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName)); 
+                                      .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName));
+
+                dbContext.Playlists.Attach(favoritePlayList);
 
                 var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
+                dbContext.Tracks.Attach(track);
 
                 if (favoritePlayList != null && favoritePlayList.PlaylistId > 0)
                 {
@@ -90,7 +95,10 @@ namespace Chinook.Services.Playlist
                                        .AsNoTracking()
                                        .FirstOrDefaultAsync(p => p.PlaylistId == playlistId);
 
+                dbContext.Playlists.Attach(playList);
+
                 var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
+                dbContext.Tracks.Attach(track);
 
                 if (playList != null && track != null)
                 {
@@ -199,40 +207,35 @@ namespace Chinook.Services.Playlist
 
         public async Task<PlaylistDto> GetTracksOfUserPlaylist(long playlistId, string userId)
         {
-            PlaylistDto playlist = new(); 
+            PlaylistDto playlistDto = new(); 
 
             try
             {
-                //playlist = await dbContext.Playlists
-                //           .Include(p => p.Tracks)
-                //           .ThenInclude(t => t.Album).ThenInclude(a => a.Artist)
-                //           .Where(p => p.PlaylistId == playlistId)
-                //           .Select(p => mapper.Map<PlaylistDto>(p))
-                //           .FirstOrDefaultAsync();
+                var playlist = await dbContext.Playlists
+                               .Include(p => p.Tracks)
+                               .ThenInclude(t => t.Album).ThenInclude(a => a.Artist)
+                               .Where(p => p.PlaylistId == playlistId)
+                               .FirstOrDefaultAsync();
 
-                playlist = await dbContext.Playlists
-                           .Include(p => p.Tracks)
-                           .ThenInclude(t => t.Album).ThenInclude(a => a.Artist)
-                           .Where(p => p.PlaylistId == playlistId)
-                           .Select(p => new PlaylistDto()
-                           {
-                               Name = p.Name,
-                               Tracks = p.Tracks.Select(t => new ClientModels.PlaylistTrackDto()
-                               {
-                                   AlbumTitle = t.Album.Title,
-                                   ArtistName = t.Album.Artist.Name,
-                                   TrackId = t.TrackId,
-                                   TrackName = t.Name,
-                                   IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name == "Favorites")).Any()
-                               }).ToList()
-                           }).FirstOrDefaultAsync();
+                playlistDto = mapper.Map<PlaylistDto>(playlist);
+
+                playlistDto.Tracks = playlist.Tracks.Select(t => new PlaylistTrackDto
+                {
+                    AlbumTitle = t.Album.Title,
+                    ArtistName = t.Album.Artist.Name,
+                    TrackId = t.TrackId,
+                    TrackName = t.Name,
+                    IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name.Equals(favoritePlaylistName)))
+                }).ToList();
+
+                return playlistDto;
 
             }
             catch (Exception ex)
             {
                 throw new Exception("Error occurred " + ex.Message);
             }
-            return playlist; 
+            
         }
 
         public async Task<UserPlayListDto> RemoveTrackFromPlaylist(long trackId, string userId)

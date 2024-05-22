@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Chinook.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Chinook;
 
@@ -223,20 +224,33 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
 
             entity.Property(e => e.Name).HasColumnType("NVARCHAR(120)");
 
-            entity.HasMany(d => d.Tracks)
-                .WithMany(p => p.Playlists)
-                .UsingEntity<Dictionary<string, object>>(
-                    "PlaylistTrack",
-                    l => l.HasOne<Track>().WithMany().HasForeignKey("TrackId").OnDelete(DeleteBehavior.ClientSetNull),
-                    r => r.HasOne<Playlist>().WithMany().HasForeignKey("PlaylistId").OnDelete(DeleteBehavior.ClientSetNull),
-                    j =>
-                    {
-                        j.HasKey("PlaylistId", "TrackId");
+            //entity.HasMany(d => d.Tracks)
+            //    .WithMany(p => p.Playlists)
+            //    .UsingEntity<Dictionary<string, object>>(
+            //        "PlaylistTrack",
+            //        l => l.HasOne<Track>().WithMany().HasForeignKey("TrackId").OnDelete(DeleteBehavior.ClientSetNull),
+            //        r => r.HasOne<Playlist>().WithMany().HasForeignKey("PlaylistId").OnDelete(DeleteBehavior.ClientSetNull),
+            //        j =>
+            //        {
+            //            j.HasKey("PlaylistId", "TrackId");
 
-                        j.ToTable("PlaylistTrack");
+            //            j.ToTable("PlaylistTrack");
 
-                        j.HasIndex(new[] { "TrackId" }, "IFK_PlaylistTrackTrackId");
-                    });
+            //            j.HasIndex(new[] { "TrackId" }, "IFK_PlaylistTrackTrackId");
+            //        });
+
+
+            entity.HasMany(e => e.Tracks)
+            .WithMany(e => e.Playlists)
+            .UsingEntity(
+                "PlaylistTrack",
+                l => l.HasOne(typeof(Track)).WithMany().HasForeignKey("TrackId").HasPrincipalKey(nameof(Track.TrackId)),
+                r => r.HasOne(typeof(Playlist)).WithMany().HasForeignKey("PlaylistId").HasPrincipalKey(nameof(Playlist.PlaylistId)),
+                j => { 
+                    j.HasKey("PlaylistId", "TrackId");
+                    j.ToTable("PlaylistTrack");
+                });
+
         });
 
         modelBuilder.Entity<Track>(entity =>
