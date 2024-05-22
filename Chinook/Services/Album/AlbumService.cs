@@ -31,16 +31,16 @@ namespace Chinook.Services.Album
                 throw new Exception("Something went wrong " + ex.Message);
             }
         }
-        public async Task<List<PlaylistTrack>> GetTracksOfArtist(long aristId)
+        public async Task<List<PlaylistTrackDto>> GetTracksOfArtist(long aristId)
         {
             try
             {
-                List<PlaylistTrack> tracks = [];
+                List<PlaylistTrackDto> tracks = [];
 
                 tracks = await dbContext.Tracks
                         .Include(t => t.Album)
                         .Where(t => t.Album!.ArtistId == aristId)
-                        .Select(t => mapper.Map<PlaylistTrack>(t)).ToListAsync();
+                        .Select(t => mapper.Map<PlaylistTrackDto>(t)).ToListAsync();
 
 
                 return tracks;

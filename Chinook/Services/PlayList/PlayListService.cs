@@ -18,11 +18,10 @@ namespace Chinook.Services.Playlist
             mapper = _mapper;
         }
 
-        public async Task<UserPlayListDto> AddTrackToPlaylist(long trackId, string userId)
+        public async Task<UserPlayListDto> AddTrackToFavoritePlaylist(long trackId, string userId)
         {
             try
             {
-               
                 //First we need to check the availability of the Favorites play list. 
                 var favoritePlayList = await dbContext.Playlists
                                       .Include(p => p.Tracks)
@@ -34,7 +33,7 @@ namespace Chinook.Services.Playlist
 
                 if (favoritePlayList != null && favoritePlayList.PlaylistId > 0)
                 {
-                    if (favoritePlayList.Tracks?.Count > 0)
+                    if (favoritePlayList != null)
                     {
                         favoritePlayList.Tracks!.Add(track);
                         await dbContext.SaveChangesAsync();
@@ -66,6 +65,7 @@ namespace Chinook.Services.Playlist
                     favoritePlayList.Tracks = tracks;
                     favoritePlayList.Tracks!.Add(track);
 
+                    //dbContext.PlaylistTracks.Add(new PlaylistTrack() { PlaylistId = favoritePlayList.PlaylistId, TrackId = trackId });
                     dbContext.UserPlaylists.Add(new UserPlaylist() { UserId = userId, PlaylistId = favoritePlayList.PlaylistId });
                     await dbContext.SaveChangesAsync();
                 }
@@ -94,7 +94,7 @@ namespace Chinook.Services.Playlist
 
                 if (playList != null && track != null)
                 {
-                    if (playList.Tracks?.Count > 0)
+                    if (playList.Tracks != null)
                     {
                         playList.Tracks!.Add(track);
                         await dbContext.SaveChangesAsync();
@@ -125,6 +125,41 @@ namespace Chinook.Services.Playlist
             catch (Exception ex)
             {
                 return new UserPlayListDto() { SuccessfullyAdded = false };
+            }
+        }
+
+        public async Task<UserPlayListDto> CreatePlaylist(string playlistName, long trackId, string userId)
+        {
+            try
+            {
+                var existinglayList = await dbContext.Playlists
+                                            .AsNoTracking()
+                                            .FirstOrDefaultAsync(p => p.Name!.Equals(playlistName));
+
+                if (existinglayList != null && existinglayList.PlaylistId > 0)
+                {
+                    return new UserPlayListDto() { Message = "This playlist is already exists", SuccessfullyAdded = false };
+                }
+                else
+                {
+                    long newPlaylistId = await CreatePlaylist(playlistName);
+
+                    if (newPlaylistId > 0)
+                    {
+                        await AddTrackToPlaylist(newPlaylistId, trackId, userId); 
+
+                        return new UserPlayListDto() { Message = "Playlist is created", SuccessfullyAdded = true };
+                    }
+                    else
+                    {
+                        return new UserPlayListDto() { Message = "Playlist is not created", SuccessfullyAdded = false };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new UserPlayListDto() { Message = ex.Message, SuccessfullyAdded = false };
             }
         }
 
@@ -182,7 +217,7 @@ namespace Chinook.Services.Playlist
                            .Select(p => new PlaylistDto()
                            {
                                Name = p.Name,
-                               Tracks = p.Tracks.Select(t => new ClientModels.PlaylistTrack()
+                               Tracks = p.Tracks.Select(t => new ClientModels.PlaylistTrackDto()
                                {
                                    AlbumTitle = t.Album.Title,
                                    ArtistName = t.Album.Artist.Name,
@@ -237,8 +272,8 @@ namespace Chinook.Services.Playlist
         {
             try
             {
-                long maxId = dbContext.Playlists.Max(p => p.PlaylistId);
-                var newPlaylist = new Models.Playlist() { PlaylistId= maxId + 1,  Name = playlistName };
+               
+                var newPlaylist = new Models.Playlist() { Name = playlistName };
 
                 dbContext.Playlists.Add(newPlaylist);
                 await dbContext.SaveChangesAsync();

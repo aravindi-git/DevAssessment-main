@@ -11,7 +11,7 @@ namespace Chinook
 
             CreateMap<Album, AlbumDto>();
 
-            CreateMap<Track, PlaylistTrack>()
+            CreateMap<Track, PlaylistTrackDto>()
                     .ForMember(dest =>
                         dest.TrackId,
                         opt => opt.MapFrom(src => src.TrackId))

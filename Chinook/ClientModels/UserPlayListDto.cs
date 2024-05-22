@@ -8,5 +8,6 @@
         //public List<PlaylistTrack> Tracks { get; set; }
 
         public bool SuccessfullyAdded { get; set; }
+        public string Message { get; set; }
     }
 }

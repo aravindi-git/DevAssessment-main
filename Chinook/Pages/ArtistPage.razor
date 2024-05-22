@@ -77,7 +77,7 @@ else
         </div>
         <div class="mb-2">
             <label for="NewPlaylist">Create new playlist</label>
-            <input type="text" id="NewPlaylist" class="form-control" placeholder="Name for the new playlist">
+            <input type="text" id="NewPlaylist" @bind="@NewPlaylistName" class="form-control" placeholder="Name for the new playlist">
         </div>
     </Body>
     <Footer>
@@ -94,13 +94,14 @@ else
 
     private Modal PlaylistDialog { get; set; }
     private ArtistDto Artist;
-    private List<PlaylistTrack> Tracks;
+    private List<PlaylistTrackDto> Tracks;
     private List<AlbumDto> Albums; 
-    private PlaylistTrack SelectedTrack;
+    private PlaylistTrackDto SelectedTrack;
     private List<ExistingPlaylistDto> ExistingPlaylists; 
     private long SelectedPlaylistId; 
     private string InfoMessage;
     private string CurrentUserId;
+    private string NewPlaylistName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,7 +127,7 @@ else
         var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
         // TODO: add track to Favorites playlist (done)
-        var result =  await PlaylistService.AddTrackToPlaylist(trackId, CurrentUserId);
+        var result =  await PlaylistService.AddTrackToFavoritePlaylist(trackId, CurrentUserId);
         if (result.SuccessfullyAdded == true )
         {
             track!.IsFavorite = true; 
@@ -159,21 +160,40 @@ else
     private async Task AddTrackToPlaylist()
     {
         // TODO
-        string selectedPlaylistName = ExistingPlaylists.First(p => p.PlayListId == SelectedPlaylistId).Name!; 
-        var result =  await PlaylistService.AddTrackToPlaylist(SelectedPlaylistId, SelectedTrack.TrackId, CurrentUserId);
-        if(result.SuccessfullyAdded)
+        if (SelectedPlaylistId > 0 )
         {
-            CloseInfoMessage();
-            InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
+            string selectedPlaylistName = ExistingPlaylists.First(p => p.PlayListId == SelectedPlaylistId).Name!;
+            var result = await PlaylistService.AddTrackToPlaylist(SelectedPlaylistId, SelectedTrack.TrackId, CurrentUserId);
+            if (result.SuccessfullyAdded)
+            {
+                CloseInfoMessage();
+                InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
 
+            }
+            else
+            {
+                InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} did not add to playlist {selectedPlaylistName}.";
+            }
+
+            SelectedPlaylistId = 0;
+            PlaylistDialog.Close();
         }
-        else
+        else if (!String.IsNullOrEmpty(NewPlaylistName))
         {
-            InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} did not add to playlist {selectedPlaylistName}.";
+            var result = await PlaylistService.CreatePlaylist(NewPlaylistName, SelectedTrack.TrackId, CurrentUserId);
+
+            if (result.SuccessfullyAdded)
+            {
+                CloseInfoMessage();
+                InfoMessage = $"New playlist {NewPlaylistName} added to playlist is created .";
+
+            }
+            else
+            {
+                InfoMessage = $"New playlist {NewPlaylistName} added to playlist is not created .";
+            }
         }
 
-        SelectedPlaylistId = 0;
-        PlaylistDialog.Close();
 
     }
 
