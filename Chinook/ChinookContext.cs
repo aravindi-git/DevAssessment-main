@@ -218,7 +218,8 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
         {
             entity.ToTable("Playlist");
 
-            entity.Property(e => e.PlaylistId).ValueGeneratedNever();
+            // Changed this line from ValueGeneratedNever to ValueGeneratedOnAdd to make the playlistId to generate automatically when creating.
+            entity.Property(e => e.PlaylistId).ValueGeneratedOnAdd();
 
             entity.Property(e => e.Name).HasColumnType("NVARCHAR(120)");
 
