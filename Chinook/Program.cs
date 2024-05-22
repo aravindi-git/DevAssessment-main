@@ -2,6 +2,7 @@ global using Chinook.ClientModels;
 global using Chinook.Services.Artist;
 global using Chinook.Services.Album; 
 global using Chinook.Services.Playlist;
+global using Chinook.Constants; 
 
 using Chinook;
 using Chinook.Areas.Identity;

@@ -14,7 +14,6 @@ namespace Chinook.Services.Playlist
     {
         private readonly ChinookContext dbContext;
         private readonly IMapper mapper;
-        private readonly string favoritePlaylistName = "My favorite tracks";
         private readonly ILogger<PlaylistService> logger;
 
         public PlaylistService(ChinookContext _dbContext, IMapper _mapper, ILogger<PlaylistService> _logger) 
@@ -32,7 +31,7 @@ namespace Chinook.Services.Playlist
                 var favoritePlayList = await dbContext.Playlists
                                       .Include(p => p.Tracks)
                                       .Include(p => p.UserPlaylists)
-                                      .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName));
+                                      .FirstOrDefaultAsync(p => p.Name!.Equals(ChinookConstants.MyFavoriteTracks));
 
                 var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
 
@@ -70,7 +69,7 @@ namespace Chinook.Services.Playlist
                 }
                 else
                 {
-                    long playlistId = await CreatePlaylist(favoritePlaylistName);
+                    long playlistId = await CreatePlaylist(ChinookConstants.MyFavoriteTracks);
                     favoritePlayList = await dbContext.Playlists.FirstAsync(p => p.PlaylistId == playlistId);
 
                     List<Track> tracks = [];
@@ -244,7 +243,7 @@ namespace Chinook.Services.Playlist
                 var favoritePlayList = await dbContext.Playlists
                                       .Include(p => p.Tracks)
                                       .Include(p => p.UserPlaylists)
-                                      .FirstOrDefaultAsync(p => p.Name!.Equals(favoritePlaylistName));
+                                      .FirstOrDefaultAsync(p => p.Name!.Equals(ChinookConstants.MyFavoriteTracks));
 
                 var track = await dbContext.Tracks.FirstAsync(t => t.TrackId == trackId);
               

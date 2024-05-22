@@ -11,7 +11,6 @@ namespace Chinook.Services.Album
         private readonly ChinookContext dbContext;
         private readonly IMapper mapper;
         private readonly ILogger<AlbumService> logger;
-        private const string favoritePlaylistName = "My favorite tracks";
 
         public AlbumService(ChinookContext _dbcontext, IMapper _mapper, ILogger<AlbumService> _logger)
         {
@@ -50,7 +49,7 @@ namespace Chinook.Services.Album
                             .Select(t => new
                             {
                                 Track = t,
-                                IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name.Equals(favoritePlaylistName)))
+                                IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name.Equals(ChinookConstants.MyFavoriteTracks)))
                             }).ToListAsync();
 
                 playlistTrackDtos = tracks.Select(t =>
