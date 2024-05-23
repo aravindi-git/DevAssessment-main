@@ -16,7 +16,7 @@ else
 {
     <div class="container-fluid mb-md-3">
         <div class="w-100">
-            <input class="form-control w-100" @bind-value="SearchText" @bind-value:event="oninput" @onkeydown="OnSearch" placeholder="Type artist name and press Enter key to search" />
+            <input class="form-control w-100" @bind-value="SearchText" @bind-value:event="oninput" placeholder="Search ..." />
         </div>
     </div>
 
@@ -43,13 +43,11 @@ else
     [Inject] IArtistService ArtistService { get; set; }
 
     private List<ArtistDto> Artists;
-    private List<ArtistDto> FilteredArtists;
     private string SearchText = String.Empty;
 
     protected override async Task OnInitializedAsync() {
         await InvokeAsync(StateHasChanged);
         Artists = await GetArtists();
-        FilteredArtists = GetFilterredArtists();
     }
 
     public async Task<List<ArtistDto>> GetArtists()
@@ -66,12 +64,8 @@ else
         return Artists;
     }
 
-    public void OnSearch(KeyboardEventArgs e)
-    {
-        if (e.Code == "Enter" || e.Code == "NumpadEnter")
-        {
-            FilteredArtists = GetFilterredArtists();
-        }
-        
-    }
+    private List<ArtistDto> FilteredArtists => Artists
+       .Where(item => item.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+       .ToList();
+
 }
