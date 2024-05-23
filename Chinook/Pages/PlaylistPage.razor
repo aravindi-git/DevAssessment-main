@@ -68,9 +68,13 @@ else
     protected override async Task OnInitializedAsync()
     {
         CurrentUserId = await GetUserId();
-
         await InvokeAsync(StateHasChanged);
+        Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
+    }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await InvokeAsync(StateHasChanged);
         Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
     }
 

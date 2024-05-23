@@ -14,9 +14,12 @@
 }
 else
 {
-    <div class="mb-2">
-        <input @bind-value="SearchText" @bind-value:event="oninput" @onkeydown="OnSearch" placeholder="Type artist name and press Enter key to search" />
+    <div class="container-fluid mb-md-3">
+        <div class="w-100">
+            <input class="form-control w-100" @bind-value="SearchText" @bind-value:event="oninput" @onkeydown="OnSearch" placeholder="Type artist name and press Enter key to search" />
+        </div>
     </div>
+
     <table class="table table-striped table-hover table-sm">
         <thead>
             <tr>
