@@ -13,7 +13,7 @@
 4. Initiated an AutoMapper profile to map the entity models to client models, define maps and register it on the dependeny injection container in Program cs file. 
    Used the Automapper when mapping the models to client models in the service classes. 
 
-5. Implemented the functionality to display the albums count of the Artists on the home page. 
+5. Implemented the functionalities to search Artists by name and to display the albums count of the Artists on the home page. 
 
 6. Implemented the functionality to make a track as a favorite one on the Artist page. (Here, if the favorite playlist is alteady exists, then add the track to it. Otherwise, 
    Create a new playlist with the name of "My favorite tracks" and then add track to it. )
