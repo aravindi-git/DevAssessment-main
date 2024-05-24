@@ -138,13 +138,17 @@ else
         {
             track!.IsFavorite = true; 
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist My favorite tracks.";
-            NavigationManager.Refresh(); 
+
+            if (result.IsNewPlaylist == true)
+            {
+                NavigationManager.Refresh();
+            }
         }
         else
         {
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not add to playlist My favorite tracks.";
         }
-
+       
     }
 
     private async Task UnfavoriteTrack(long trackId)
@@ -156,6 +160,7 @@ else
         {
             track!.IsFavorite = false;
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist My favorite tracks.";
+
         }
         else
         {
@@ -176,9 +181,9 @@ else
         if (SelectedPlaylistId > 0 )
         {
             await AddTrackToExistingPlaylist(); 
-
         }
-        else if (!String.IsNullOrEmpty(NewPlaylistName))
+        
+        if (!String.IsNullOrEmpty(NewPlaylistName))
         {
             await AddTrackToNewPlaylist(); 
         }

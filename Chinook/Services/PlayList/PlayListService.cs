@@ -27,6 +27,7 @@ namespace Chinook.Services.Playlist
         public async Task<PlayListResponseDto> AddTrackToFavoritePlaylist(long trackId, string userId)
         {
             long favoritePlaylistId = 0;
+            bool isNewPlaylistCreated = false; 
             try
             {
                 //First we need to check the availability of the Favorites playlist. 
@@ -47,7 +48,8 @@ namespace Chinook.Services.Playlist
                 if (favoritePlayList != null)
                 {
                     dbContext.Playlists.Attach(favoritePlayList);
-                    favoritePlaylistId = favoritePlayList.PlaylistId; 
+                    favoritePlaylistId = favoritePlayList.PlaylistId;
+                    isNewPlaylistCreated = false;
 
                     if (favoritePlayList.Tracks != null)
                     {
@@ -76,7 +78,8 @@ namespace Chinook.Services.Playlist
                 {
                     long playlistId = await CreatePlaylist(ChinookConstants.MyFavoriteTracks);
                     favoritePlayList = await dbContext.Playlists.FirstAsync(p => p.PlaylistId == playlistId);
-                    favoritePlaylistId = playlistId; 
+                    favoritePlaylistId = playlistId;
+                    isNewPlaylistCreated = true; 
 
                     List<Track> tracks = [];
                     favoritePlayList.Tracks = tracks;
@@ -86,7 +89,7 @@ namespace Chinook.Services.Playlist
                     await dbContext.SaveChangesAsync();
                 }
 
-                return new PlayListResponseDto() { PlaylistId= favoritePlaylistId,  SuccessfullyAdded = true };
+                return new PlayListResponseDto() { PlaylistId= favoritePlaylistId,  SuccessfullyAdded = true, IsNewPlaylist = isNewPlaylistCreated };
 
             }
             catch (Exception ex)

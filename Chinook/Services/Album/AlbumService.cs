@@ -25,11 +25,14 @@ namespace Chinook.Services.Album
             List<AlbumDto> albums = [];
             try
             {
-                albums = await dbContext.Albums
-                        .Include(t => t.Tracks)
-                        .Where(a => a.ArtistId == aristId)
-                        .Select(a => mapper.Map<AlbumDto>(a))
-                        .ToListAsync();
+               if(aristId > 0)
+               {
+                    albums = await dbContext.Albums
+                            .Include(t => t.Tracks)
+                            .Where(a => a.ArtistId == aristId)
+                            .Select(a => mapper.Map<AlbumDto>(a))
+                            .ToListAsync();
+               }
 
             }
             catch (Exception ex)
@@ -45,7 +48,9 @@ namespace Chinook.Services.Album
             List<PlaylistTrackDto> playlistTrackDtos = []; 
             try
             {
-                var tracks = await dbContext.Tracks
+               if(aristId > 0 && !String.IsNullOrEmpty(userId))
+               {
+                    var tracks = await dbContext.Tracks
                             .Include(t => t.Album)
                             .Include(t => t.Playlists)
                             .Where(t => t.Album!.ArtistId == aristId)
@@ -55,12 +60,13 @@ namespace Chinook.Services.Album
                                 IsFavorite = t.Playlists.Any(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name.Equals(ChinookConstants.MyFavoriteTracks)))
                             }).ToListAsync();
 
-                playlistTrackDtos = tracks.Select(t =>
-                {
-                    var dto = mapper.Map<PlaylistTrackDto>(t.Track);
-                    dto.IsFavorite = t.IsFavorite;
-                    return dto;
-                }).ToList();
+                    playlistTrackDtos = tracks.Select(t =>
+                    {
+                        var dto = mapper.Map<PlaylistTrackDto>(t.Track);
+                        dto.IsFavorite = t.IsFavorite;
+                        return dto;
+                    }).ToList();
+               }
             }
             catch (Exception ex)
             {

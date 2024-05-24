@@ -45,10 +45,10 @@ else
                                 {
                                     <a href="#" class="m-1" title="Unark as favorite" @onclick="@(() => UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
                                 }
-                                else
+                                @* else
                                 {
                                     <a href="#" class="m-1" title="Mark as favorite" @onclick="@(() => FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
-                                }
+                                } *@
                             </div>
                         </td>
                     </tr>
@@ -88,23 +88,23 @@ else
         return userId;
     }
 
-    private async Task FavoriteTrack(long trackId)
-    {
-        var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+    // private async Task FavoriteTrack(long trackId)
+    // {
+    //     var track = Playlist.Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
-        var result = await PlaylistService.AddTrackToPlaylist(PlaylistId, trackId, CurrentUserId);
-        if (result.SuccessfullyAdded == true)
-        {
-            track!.IsFavorite = true;
-            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist My favorite tracks.";
-        }
-        else
-        {
-            InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not add to playlist My favorite tracks.";
-        }
+    //     var result = await PlaylistService.AddTrackToPlaylist(PlaylistId, trackId, CurrentUserId);
+    //     if (result.SuccessfullyAdded == true)
+    //     {
+    //         track!.IsFavorite = true;
+    //         InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist My favorite tracks.";
+    //     }
+    //     else
+    //     {
+    //         InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not add to playlist My favorite tracks.";
+    //     }
 
        
-    }
+    // }
 
     private async Task UnfavoriteTrack(long trackId)
     {
@@ -115,6 +115,9 @@ else
         {
             track!.IsFavorite = false;
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist My favorite tracks.";
+            StateHasChanged();
+            Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
+
         }
         else
         {
