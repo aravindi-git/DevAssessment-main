@@ -132,6 +132,7 @@ else
         {
             track!.IsFavorite = true; 
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist My favorite tracks.";
+            NavigationManager.Refresh(); 
         }
         else
         {

@@ -31,7 +31,7 @@ namespace Chinook.Services.Artist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message); 
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message); 
             }
             return artists;
         }
@@ -49,7 +49,7 @@ namespace Chinook.Services.Artist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
             }
             return artist;
         }

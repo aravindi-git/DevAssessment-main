@@ -4,17 +4,17 @@
     {
         Task<PlaylistDto> GetTracksOfUserPlaylist (long playlistId, string userId);
 
-        Task<UserPlayListDto> AddTrackToFavoritePlaylist(long trackId, string userId);
+        Task<PlayListResponseDto> AddTrackToFavoritePlaylist(long trackId, string userId);
 
-        Task<UserPlayListDto> AddTrackToPlaylist (long playlistId, long trackId, string userId);
+        Task<PlayListResponseDto> AddTrackToPlaylist (long playlistId, long trackId, string userId);
 
-        Task<UserPlayListDto> RemoveTrackFromPlaylist (long playlistId, long trackId);
-        Task<UserPlayListDto> RemoveTrackFromFavoritePlaylist(long trackId);
+        Task<PlayListResponseDto> RemoveTrackFromPlaylist (long playlistId, long trackId);
+        Task<PlayListResponseDto> RemoveTrackFromFavoritePlaylist(long trackId);
 
         Task<List<ExistingPlaylistDto>> GetExistingPlaylists ();
 
         Task<List<MyPlaylistDto>> GetMyPlayLists (string userId);
 
-        Task<UserPlayListDto> CreatePlaylist(string playlistName, long trackId, string userId);
+        Task<PlayListResponseDto> CreatePlaylist(string playlistName, long trackId, string userId);
     }
 }

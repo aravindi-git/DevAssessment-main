@@ -34,7 +34,7 @@ namespace Chinook.Services.Album
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
             }
             return albums;
         }
@@ -64,7 +64,7 @@ namespace Chinook.Services.Album
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
             }
             return playlistTrackDtos;
         }

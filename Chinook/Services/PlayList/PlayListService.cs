@@ -24,8 +24,9 @@ namespace Chinook.Services.Playlist
         }
 
         // Make a track as favorite track. 
-        public async Task<UserPlayListDto> AddTrackToFavoritePlaylist(long trackId, string userId)
+        public async Task<PlayListResponseDto> AddTrackToFavoritePlaylist(long trackId, string userId)
         {
+            long favoritePlaylistId = 0;
             try
             {
                 //First we need to check the availability of the Favorites playlist. 
@@ -46,6 +47,7 @@ namespace Chinook.Services.Playlist
                 if (favoritePlayList != null)
                 {
                     dbContext.Playlists.Attach(favoritePlayList);
+                    favoritePlaylistId = favoritePlayList.PlaylistId; 
 
                     if (favoritePlayList.Tracks != null)
                     {
@@ -74,6 +76,7 @@ namespace Chinook.Services.Playlist
                 {
                     long playlistId = await CreatePlaylist(ChinookConstants.MyFavoriteTracks);
                     favoritePlayList = await dbContext.Playlists.FirstAsync(p => p.PlaylistId == playlistId);
+                    favoritePlaylistId = playlistId; 
 
                     List<Track> tracks = [];
                     favoritePlayList.Tracks = tracks;
@@ -83,19 +86,19 @@ namespace Chinook.Services.Playlist
                     await dbContext.SaveChangesAsync();
                 }
 
-                return new UserPlayListDto() { SuccessfullyAdded = true };
+                return new PlayListResponseDto() { PlaylistId= favoritePlaylistId,  SuccessfullyAdded = true };
 
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
-                return new UserPlayListDto() { SuccessfullyAdded = false};
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
+                return new PlayListResponseDto() { SuccessfullyAdded = false};
             }
            
         }
 
         // Add a track to a given playlist
-        public async Task<UserPlayListDto> AddTrackToPlaylist(long playlistId, long trackId, string userId)
+        public async Task<PlayListResponseDto> AddTrackToPlaylist(long playlistId, long trackId, string userId)
         {
             try
             {
@@ -131,7 +134,7 @@ namespace Chinook.Services.Playlist
                         dbContext.UserPlaylists.Add(new UserPlaylist() { UserId = userId, PlaylistId = playList.PlaylistId });
                         await dbContext.SaveChangesAsync();
                     }
-                    return new UserPlayListDto() { SuccessfullyAdded = true };
+                    return new PlayListResponseDto() { PlaylistId = playlistId , SuccessfullyAdded = true };
                 }
                 else
                 {
@@ -140,13 +143,13 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
-                return new UserPlayListDto() { SuccessfullyAdded = false };
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
+                return new PlayListResponseDto() { SuccessfullyAdded = false };
             }
         }
 
         //Create a new playlist
-        public async Task<UserPlayListDto> CreatePlaylist(string playlistName, long trackId, string userId)
+        public async Task<PlayListResponseDto> CreatePlaylist(string playlistName, long trackId, string userId)
         {
             try
             {
@@ -157,7 +160,7 @@ namespace Chinook.Services.Playlist
                 // if a playlist with the same name is already available, we are not creating a new playlist to avoid duplicates. 
                 if (existinglayList != null)
                 {
-                    return new UserPlayListDto() { Message = "This playlist is already exists", SuccessfullyAdded = false };
+                    return new PlayListResponseDto() {  PlaylistId = existinglayList.PlaylistId , Message = "This playlist is already exists", SuccessfullyAdded = false };
                 }
                 else
                 {
@@ -169,16 +172,16 @@ namespace Chinook.Services.Playlist
 
                         if(result.SuccessfullyAdded == true)
                         {
-                            return new UserPlayListDto() { Message = "Playlist is created", SuccessfullyAdded = true };
+                            return new PlayListResponseDto() { PlaylistId = newPlaylistId, Message = "Playlist is created", SuccessfullyAdded = true };
                         }  
                     }
-                    return new UserPlayListDto() { Message = "Playlist is not created successfully", SuccessfullyAdded = false };
+                    return new PlayListResponseDto() { Message = "Playlist is not created successfully", SuccessfullyAdded = false };
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
-                return new UserPlayListDto() { Message = ex.Message, SuccessfullyAdded = false };
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
+                return new PlayListResponseDto() { Message = ex.Message, SuccessfullyAdded = false };
             }
         }
 
@@ -194,7 +197,7 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
             }
             return existingPlaylists;
         }
@@ -213,7 +216,7 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
             }
             return myPlaylists;
         }
@@ -227,7 +230,6 @@ namespace Chinook.Services.Playlist
                 var playlist = await dbContext.Playlists
                                .Include(p => p.Tracks)
                                     .ThenInclude(t => t.Album).ThenInclude(a => a.Artist)
-                               //.Include(p => p.UserPlaylists)
                                .Where(p => p.PlaylistId == playlistId)
                                .FirstOrDefaultAsync();
 
@@ -240,13 +242,13 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
             }
             return playlistDto;
         }
 
         // Remove a track from the favorite playlist
-        public async Task<UserPlayListDto> RemoveTrackFromFavoritePlaylist(long trackId)
+        public async Task<PlayListResponseDto> RemoveTrackFromFavoritePlaylist(long trackId)
         {
             try
             {
@@ -264,22 +266,22 @@ namespace Chinook.Services.Playlist
 
                     favoritePlayList.Tracks!.Remove(track);
                     await dbContext.SaveChangesAsync();
-                    return new UserPlayListDto() { SuccessfullyAdded = true };
+                    return new PlayListResponseDto() { PlaylistId = favoritePlayList.PlaylistId,  SuccessfullyAdded = true };
                 }
                 else
                 {
-                    return new UserPlayListDto() { SuccessfullyAdded = false };
+                    return new PlayListResponseDto() { SuccessfullyAdded = false };
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
-                return new UserPlayListDto() { SuccessfullyAdded = false };
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
+                return new PlayListResponseDto() { SuccessfullyAdded = false };
             }
         }
 
         // Remove a track from a playlist
-        public  async Task<UserPlayListDto> RemoveTrackFromPlaylist(long playlistId, long trackId)
+        public  async Task<PlayListResponseDto> RemoveTrackFromPlaylist(long playlistId, long trackId)
         {
             try
             {
@@ -297,17 +299,17 @@ namespace Chinook.Services.Playlist
 
                     playList.Tracks!.Remove(track);
                     await dbContext.SaveChangesAsync();
-                    return new UserPlayListDto() { SuccessfullyAdded = true };
+                    return new PlayListResponseDto() { PlaylistId = playList.PlaylistId, SuccessfullyAdded = true };
                 }
                 else
                 {
-                    return new UserPlayListDto() { SuccessfullyAdded = false };
+                    return new PlayListResponseDto() { SuccessfullyAdded = false };
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
-                return new UserPlayListDto() { SuccessfullyAdded = false };
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
+                return new PlayListResponseDto() { SuccessfullyAdded = false };
             }
         }
 
@@ -325,7 +327,7 @@ namespace Chinook.Services.Playlist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Exception occurred: " + ex.Message);
+                logger.LogError(ex, ChinookConstants.ExceptionMessage + ex.Message);
                 return 0; 
             }
 
