@@ -30,7 +30,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>(); 
-builder.Services.AddTransient <INavigationService, NavigationService>();
+builder.Services.AddTransient <NavigationService>();
 
 var app = builder.Build();
 

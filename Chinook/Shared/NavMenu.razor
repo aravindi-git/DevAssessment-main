@@ -1,5 +1,4 @@
-﻿@using System.Security.Claims
-@attribute [Authorize]
+﻿@attribute [Authorize]
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -34,24 +33,17 @@
 </div>
 
 @code {
-    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
-    [Inject] INavigationService NavigationService { get; set; }
+    [Parameter] public string CurrentUserId { get; set; }
+    [Inject] NavigationService NavigationService { get; set; }
 
     private bool collapseNavMenu = true;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-    private string CurrentUserId;
+
     private List<NavigationItem> NavigationItems;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
-    }
-
-    private async Task<string> GetUserId()
-    {
-        var user = (await AuthenticationState).User;
-        var userId = user.FindFirst(u => u.Type.Contains(ClaimTypes.NameIdentifier))?.Value;
-        return userId;
     }
 
     private async Task<List<NavigationItem>> GetNavigationItems()
@@ -61,8 +53,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        CurrentUserId = await GetUserId();
-
         NavigationItems = await GetNavigationItems();
     }
 }

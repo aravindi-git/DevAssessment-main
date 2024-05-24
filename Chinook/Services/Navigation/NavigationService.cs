@@ -1,6 +1,6 @@
 ﻿namespace Chinook.Services.Navigation
 {
-    public class NavigationService : INavigationService
+    public class NavigationService
     {
       
         private IPlaylistService playlistService {  get; set; }
