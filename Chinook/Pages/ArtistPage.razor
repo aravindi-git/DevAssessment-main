@@ -91,6 +91,7 @@ else
     [Inject] IArtistService ArtistService { get; set; }
     [Inject] IAlbumService AlbumService { get; set; }
     [Inject] IPlaylistService PlaylistService { get; set; }
+    [Inject] INavigationService NavigationService { get; set; }
 
     private Modal PlaylistDialog { get; set; }
     private ArtistDto Artist;
@@ -167,37 +168,49 @@ else
     {
         if (SelectedPlaylistId > 0 )
         {
-            string selectedPlaylistName = ExistingPlaylists.First(p => p.PlayListId == SelectedPlaylistId).Name!;
-            var result = await PlaylistService.AddTrackToPlaylist(SelectedPlaylistId, SelectedTrack.TrackId, CurrentUserId);
-            if (result.SuccessfullyAdded)
-            {
-                CloseInfoMessage();
-                InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
-            }
-            else
-            {
-                InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} did not add to playlist {selectedPlaylistName}.";
-            }
-            SelectedPlaylistId = 0;
-           
+            await AddTrackToExistingPlaylist(); 
+
         }
         else if (!String.IsNullOrEmpty(NewPlaylistName))
         {
-            var result = await PlaylistService.CreatePlaylist(NewPlaylistName, SelectedTrack.TrackId, CurrentUserId);
-
-            if (result.SuccessfullyAdded)
-            {
-                CloseInfoMessage();
-                InfoMessage = $"New playlist {NewPlaylistName} added to playlist is created .";
-            }
-            else
-            {
-                InfoMessage = $"New playlist {NewPlaylistName} added to playlist is not created .";
-            }
-            NewPlaylistName = String.Empty; 
+            await AddTrackToNewPlaylist(); 
         }
 
         PlaylistDialog.Close();
+    }
+
+    private async Task AddTrackToExistingPlaylist()
+    {
+        string selectedPlaylistName = ExistingPlaylists.First(p => p.PlayListId == SelectedPlaylistId).Name!;
+        var result = await PlaylistService.AddTrackToPlaylist(SelectedPlaylistId, SelectedTrack.TrackId, CurrentUserId);
+        if (result.SuccessfullyAdded)
+        {
+            CloseInfoMessage();
+            InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
+            NavigationService.NotifyChange();
+        }
+        else
+        {
+            InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} did not add to playlist {selectedPlaylistName}.";
+        }
+        SelectedPlaylistId = 0;
+    }
+
+    private async Task AddTrackToNewPlaylist()
+    {
+        var result = await PlaylistService.CreatePlaylist(NewPlaylistName, SelectedTrack.TrackId, CurrentUserId);
+
+        if (result.SuccessfullyAdded)
+        {
+            CloseInfoMessage();
+            InfoMessage = $"New playlist {NewPlaylistName} added to playlist is created .";
+            NavigationService.NotifyChange();
+        }
+        else
+        {
+            InfoMessage = $"New playlist {NewPlaylistName} added to playlist is not created .";
+        }
+        NewPlaylistName = String.Empty;
     }
 
     private void CloseInfoMessage()

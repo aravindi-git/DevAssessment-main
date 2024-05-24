@@ -18,12 +18,12 @@
             </NavLink>
         </div>
 
-        @foreach(var playlist in MyPlaylists)
+        @foreach (var navigationItem in NavigationItems)
         {
-            string url = $"Playlist/{playlist.PlaylistId}"; 
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href=@url>
-                    <i class="bi bi-music-note-list me-3" style="font-size: 1.25em"></i>@playlist.Name
+                <NavLink class="nav-link" href=@navigationItem.Url>
+                    <i class="bi bi-music-note-list me-3" style="font-size: 1.25em"></i>
+                    @navigationItem.DisplayName
                 </NavLink>
             </div>
         }
@@ -32,12 +32,12 @@
 
 @code {
     [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
-    [Inject] IPlaylistService PlaylistService { get; set; }
+    [Inject] INavigationService NavigationService { get; set; }
 
     private bool collapseNavMenu = true;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     private string CurrentUserId;
-    private List<MyPlaylistDto> MyPlaylists;
+    private List<NavigationItem> NavigationItems;
 
     private void ToggleNavMenu()
     {
@@ -51,16 +51,29 @@
         return userId;
     }
 
-    private async Task<List<MyPlaylistDto>> GetMyPlayLists()
+    private async Task<List<NavigationItem>> GetNavigationItems()
     {
-        return await PlaylistService.GetMyPlayLists(CurrentUserId);
+        return await NavigationService.GetNavigationItems(CurrentUserId);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await InvokeAsync(StateHasChanged);
+        NavigationService.OnNavItemsChanged += StateHasChanged;
         CurrentUserId = await GetUserId();
 
-        MyPlaylists = await GetMyPlayLists(); 
+        NavigationItems = await GetNavigationItems();
     }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await InvokeAsync(StateHasChanged);
+        NavigationItems = await GetNavigationItems();
+    }
+
+
+    public void Dispose()
+       => this.NavigationService.OnNavItemsChanged -= StateHasChanged;
+
+
+
 }

@@ -2,6 +2,7 @@ global using Chinook.ClientModels;
 global using Chinook.Services.Artist;
 global using Chinook.Services.Album; 
 global using Chinook.Services.Playlist;
+global using Chinook.Services.Navigation; 
 global using Chinook.Constants; 
 
 using Chinook;
@@ -9,6 +10,7 @@ using Chinook.Areas.Identity;
 using Chinook.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Chinook.Services.Navigation;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +30,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>(); 
+builder.Services.AddTransient <INavigationService, NavigationService>();
 
 var app = builder.Build();
 
