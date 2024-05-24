@@ -64,13 +64,6 @@
         NavigationItems = await GetNavigationItems();
     }
 
-    protected override async Task OnParametersSetAsync()
-    {
-        await InvokeAsync(StateHasChanged);
-        NavigationItems = await GetNavigationItems();
-    }
-
-
     public void Dispose()
        => this.NavigationService.OnNavItemsChanged -= StateHasChanged;
 
