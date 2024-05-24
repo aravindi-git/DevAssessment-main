@@ -88,10 +88,10 @@ else
 @code {
     [Parameter] public long ArtistId { get; set; }
     [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] IArtistService ArtistService { get; set; }
     [Inject] IAlbumService AlbumService { get; set; }
     [Inject] IPlaylistService PlaylistService { get; set; }
-    [Inject] INavigationService NavigationService { get; set; }
 
     private Modal PlaylistDialog { get; set; }
     private ArtistDto Artist;
@@ -187,7 +187,7 @@ else
         {
             CloseInfoMessage();
             InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
-            NavigationService.NotifyChange();
+            NavigationManager.Refresh(); 
         }
         else
         {
@@ -204,7 +204,7 @@ else
         {
             CloseInfoMessage();
             InfoMessage = $"New playlist {NewPlaylistName} added to playlist is created .";
-            NavigationService.NotifyChange();
+            NavigationManager.Refresh();
         }
         else
         {

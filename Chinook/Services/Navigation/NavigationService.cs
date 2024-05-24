@@ -2,7 +2,7 @@
 {
     public class NavigationService : INavigationService
     {
-        public event  Action OnNavItemsChanged;
+      
         private IPlaylistService playlistService {  get; set; }
         public NavigationService(IPlaylistService _playlistService) 
         {
@@ -26,9 +26,6 @@
             return navigations; 
         }
 
-        public void NotifyChange()
-        {
-            OnNavItemsChanged?.Invoke(); 
-        }
+       
     }
 }

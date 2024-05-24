@@ -61,15 +61,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        NavigationService.OnNavItemsChanged += StateHasChanged;
         CurrentUserId = await GetUserId();
 
         NavigationItems = await GetNavigationItems();
     }
-
-    public void Dispose()
-       => this.NavigationService.OnNavItemsChanged -= StateHasChanged;
-
-
-
 }
