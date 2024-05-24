@@ -18,14 +18,17 @@
             </NavLink>
         </div>
 
-        @foreach (var navigationItem in NavigationItems)
+        @if (NavigationItems != null && NavigationItems.Count > 0 )
         {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href=@navigationItem.Url>
-                    <i class="bi bi-music-note-list me-3" style="font-size: 1.25em"></i>
-                    @navigationItem.DisplayName
-                </NavLink>
-            </div>
+            @foreach (var navigationItem in NavigationItems)
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href=@navigationItem.Url>
+                        <i class="bi bi-music-note-list me-3" style="font-size: 1.25em"></i>
+                        @navigationItem.DisplayName
+                    </NavLink>
+                </div>
+            }
         }
     </nav>
 </div>
