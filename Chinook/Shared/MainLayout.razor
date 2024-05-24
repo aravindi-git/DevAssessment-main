@@ -13,7 +13,30 @@
         </div>
 
         <article class="content px-4">
-            @Body
+            <ErrorBoundary @ref=ErrorBoundary>
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <div class="alert alert-danger fade show">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-grow-1">
+                               Something went wrong!!
+                            </div>
+                        </div>
+                    </div>
+                </ErrorContent>
+            </ErrorBoundary>
         </article>
     </main>
 </div>
+
+
+@code{
+    private ErrorBoundary? ErrorBoundary; 
+
+    protected override void OnParametersSet()
+    {
+        ErrorBoundary?.Recover(); 
+    }
+}

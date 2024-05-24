@@ -34,25 +34,28 @@ else
             </tr>
             </thead>
             <tbody>
-            @foreach (var track in Tracks)
+            @if (Tracks != null && Tracks.Count > 0)
             {
-                <tr>
-                    <td>@track.AlbumTitle</td>
-                    <td>@track.TrackName</td>
-                    <td>
-                        @if (track.IsFavorite)
-                        {
-                            <a href="#" class="m-1" title="Unmark as favorite" @onclick="@(() => UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
-                        }
-                        else
-                        {
-                            <a href="#" class="m-1" title="Mark as favorite" @onclick="@(() => FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
-                        }
-                        <a href="#" class="m-1" title="Add to playlist" @onclick="@(() => OpenPlaylistDialog(track.TrackId))" @onclick:preventDefault><i class="bi bi-file-earmark-plus"></i></a>
-                    </td>
-                </tr>
+                @foreach (var track in Tracks)
+                {
+                    <tr>
+                        <td>@track.AlbumTitle</td>
+                        <td>@track.TrackName</td>
+                        <td>
+                            @if (track.IsFavorite)
+                            {
+                                <a href="#" class="m-1" title="Unmark as favorite" @onclick="@(() => UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
+                            }
+                            else
+                            {
+                                <a href="#" class="m-1" title="Mark as favorite" @onclick="@(() => FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
+                            }
+                            <a href="#" class="m-1" title="Add to playlist" @onclick="@(() => OpenPlaylistDialog(track.TrackId))" @onclick:preventDefault><i class="bi bi-file-earmark-plus"></i></a>
+                        </td>
+                    </tr>
+                }
             }
-            </tbody>
+        </tbody>
         </table>
 }
 
@@ -69,9 +72,12 @@ else
         <div class="mb-2">
             <label for="@ExistingPlaylists">Add to existing playlist</label>
             <select class="form-control" @bind="@SelectedPlaylistId">
-                @foreach (var playlist in ExistingPlaylists)
+                @if (ExistingPlaylists != null && ExistingPlaylists.Count > 0 )
                 {
-                    <option value="@playlist.PlayListId"> @playlist.Name </option>
+                    @foreach (var playlist in ExistingPlaylists)
+                    {
+                        <option value="@playlist.PlayListId"> @playlist.Name </option>
+                    }
                 }
             </select>
         </div>

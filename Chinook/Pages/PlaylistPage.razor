@@ -33,23 +33,26 @@ else
         </tr>
         </thead>
         <tbody>
-            @foreach (var track in Playlist.Tracks)
+            @if (Playlist.Tracks != null && Playlist.Tracks.Count > 0 )
             {
-                <tr>
-                    <td>@track.ArtistName - @track.AlbumTitle - @track.TrackName</td>
-                    <td>
-                        <div class="d-flex">
-                            @if (track.IsFavorite)
-                            {
-                                <a href="#" class="m-1" title="Unark as favorite" @onclick="@(() => UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
-                            }
-                            else
-                            {
-                                <a href="#" class="m-1" title="Mark as favorite" @onclick="@(() => FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
-                            }
-                        </div>
-                    </td>
-                </tr>
+                @foreach (var track in Playlist.Tracks)
+                {
+                    <tr>
+                        <td>@track.ArtistName - @track.AlbumTitle - @track.TrackName</td>
+                        <td>
+                            <div class="d-flex">
+                                @if (track.IsFavorite)
+                                {
+                                    <a href="#" class="m-1" title="Unark as favorite" @onclick="@(() => UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
+                                }
+                                else
+                                {
+                                    <a href="#" class="m-1" title="Mark as favorite" @onclick="@(() => FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

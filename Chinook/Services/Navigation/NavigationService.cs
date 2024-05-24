@@ -14,13 +14,16 @@
             List<NavigationItem> navigations = [];
             var playLists = await playlistService.GetMyPlayLists(UserId);
 
-            foreach (var playlist in playLists)
+            if(playLists != null && playLists.Count > 0 )
             {
-                navigations.Add(new NavigationItem
+                foreach (var playlist in playLists)
                 {
-                    DisplayName = playlist.Name,
-                    Url = $"Playlist/{playlist.PlaylistId}"
-                });
+                    navigations.Add(new NavigationItem
+                    {
+                        DisplayName = playlist.Name,
+                        Url = $"Playlist/{playlist.PlaylistId}"
+                    });
+                }
             }
 
             return navigations; 

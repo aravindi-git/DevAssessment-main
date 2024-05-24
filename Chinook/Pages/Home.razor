@@ -28,12 +28,15 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var artist in FilteredArtists)
+            @if (FilteredArtists != null && FilteredArtists.Count > 0 )
             {
-                <tr>
-                    <td><a href="Artist/@artist.ArtistId">@artist.Name</a></td>
-                    <td>@artist.Albums.Count()</td>
-                </tr>
+                @foreach (var artist in FilteredArtists)
+                {
+                    <tr>
+                        <td><a href="Artist/@artist.ArtistId">@artist.Name</a></td>
+                        <td>@artist.Albums.Count()</td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
