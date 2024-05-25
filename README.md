@@ -28,9 +28,11 @@
 
 11. Improve the dialog box by hiding it after saving the chages and resetting the form. 
 
-12. Used Exception handelling on the methods of the services. 
+12. Used Exception handelling on the methods of the services. Used Ilogger to log the errors in development environment. Surrounded the body with a ErrorBoundary and child content, 
+	Added a display alert inside the ErrorContent to display when something went wrong.
 
-13. Changed the NavMenu page, Added a functionality to fetch the user's own playlists and display them on the nav menu. 
+13. Changed the NavMenu page, Added a functionality to fetch the user's own playlists and display them on the nav menu. Implemented a seperate service and used an EventHandler to 
+	update the nav menu dynamically. 
 
 14. Added the routing to the navmenu items so that we can go to playlist page and check the available tracks. 
 
