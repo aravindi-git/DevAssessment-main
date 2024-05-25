@@ -67,14 +67,12 @@ else
     protected override async Task OnInitializedAsync()
     {
         CurrentUserId = await GetUserId();
-        await InvokeAsync(StateHasChanged);
-        Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
+        await OnTracksUpdated();
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        await InvokeAsync(StateHasChanged);
-        Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
+        await OnTracksUpdated(); 
     }
 
     private async Task<string> GetUserId()
@@ -93,13 +91,19 @@ else
         {
             track!.IsFavorite = false;
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist My favorite tracks.";
-            StateHasChanged();
-            Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
+            await OnTracksUpdated(); 
         }
         else
         {
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not remove from playlist My favorite tracks.";
         }
+    }
+
+    // When playlist's tracks are modified, we need to fetch the updated track list. 
+    private async Task OnTracksUpdated()
+    {
+        await InvokeAsync(StateHasChanged);
+        Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
     }
 
 

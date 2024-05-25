@@ -33,6 +33,7 @@
 </div>
 
 @code {
+    // NavigationItems list and Current userId are passed to this component from the main layout as parameters. 
     [Parameter] public string CurrentUserId { get; set; }
     [Parameter] public List<NavigationItem> NavigationItems { get; set; }
     [Inject] NavigationService NavigationService { get; set; }
@@ -45,15 +46,17 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
+    // Navigation service itself has a defined event handeler NavMenuItemsChanged to trigger when the navigation items list is modified.
+    // We are calling OnNavMenuItemsChanged method, in the OnInitialized event of the component.
     protected override void OnInitialized()
     {
         NavigationService.NavMenuItemsChanged += OnNavMenuItemsChanged; 
-        StateHasChanged();
     }
 
+    // When the nav menu item is added to the list, we are refreshing the component as one of the parameters is changed.
     protected override void OnParametersSet()
     {
-        StateHasChanged();
+        NavigationService.NavMenuItemsChanged += OnNavMenuItemsChanged;
     }
 
     private void OnNavMenuItemsChanged(object sender, EventArgs e)

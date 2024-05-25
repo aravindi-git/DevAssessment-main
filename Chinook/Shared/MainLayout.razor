@@ -14,6 +14,7 @@
         </div>
 
         <article class="content px-4">
+           @*  Our dynamic body content is surrounded by a ErrorBoundary, The idea of it is displaying a user friendly message to the user when an error occurred *@
             <ErrorBoundary @ref=ErrorBoundary>
                 <ChildContent>
                     @Body
@@ -50,6 +51,7 @@
 
     protected override void OnParametersSet()
     {
+        //Here, We recover the error in order to prevent breaking other components or functionalitites. Then the user dont need to reload the application to get rid of unexpected error messages
         ErrorBoundary?.Recover(); 
     }
 
