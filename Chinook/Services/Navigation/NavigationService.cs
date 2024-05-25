@@ -1,34 +1,39 @@
-﻿namespace Chinook.Services.Navigation
+﻿using Chinook.Models;
+
+namespace Chinook.Services.Navigation
 {
     public class NavigationService
     {
-      
+        private List<NavigationItem> navigationItems = new();
         private IPlaylistService playlistService {  get; set; }
+
+        public event EventHandler? NavMenuItemsChanged;
         public NavigationService(IPlaylistService _playlistService) 
         {
             playlistService = _playlistService;
         }
 
-        public async Task<List<NavigationItem>> GetNavigationItems(string UserId)
+        public List<NavigationItem> GetNavigationItems(string UserId)
         {
-            List<NavigationItem> navigations = [];
-            var playLists = await playlistService.GetMyPlayLists(UserId);
+            var playLists = playlistService.GetMyPlayLists(UserId);
 
-            if(playLists != null && playLists.Count > 0 )
+            if (playLists != null && playLists.Count > 0)
             {
                 foreach (var playlist in playLists)
                 {
-                    navigations.Add(new NavigationItem
-                    {
-                        DisplayName = playlist.Name,
-                        Url = $"Playlist/{playlist.PlaylistId}"
-                    });
+                    navigationItems.Add(new NavigationItem(playlist.Name, $"Playlist/{playlist.PlaylistId}"));
                 }
             }
-
-            return navigations; 
+            return navigationItems;
         }
 
-       
+        public void AddNavMenuItem(long playlistId, string displayName)
+        {
+            navigationItems.Add(new NavigationItem (displayName, $"Playlist/{playlistId}"));
+            NavMenuItemsChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
+
+    public record NavigationItem(string DisplayName, string Url);
+
 }

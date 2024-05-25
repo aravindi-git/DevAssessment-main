@@ -206,16 +206,16 @@ namespace Chinook.Services.Playlist
         }
 
         // Fetch the list of the User Created playlists
-        public async Task<List<MyPlaylistDto>> GetMyPlayLists(string userId)
+        public List<MyPlaylistDto> GetMyPlayLists(string userId)
         {
             List<MyPlaylistDto> myPlaylists = []; 
             try
             {
-                 myPlaylists = await dbContext.Playlists
+                 myPlaylists =  dbContext.Playlists
                                .Include(p => p.UserPlaylists)
                                .Where(p => p.UserPlaylists.Any(upl => upl.UserId.Equals(userId)))
                                .Select(p => mapper.Map<MyPlaylistDto>(p))
-                               .ToListAsync();
+                               .ToList();
             }
             catch (Exception ex)
             {

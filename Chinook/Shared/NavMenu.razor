@@ -46,13 +46,16 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    private async Task<List<NavigationItem>> GetNavigationItems()
+    protected override void OnInitialized()
     {
-        return await NavigationService.GetNavigationItems(CurrentUserId);
+        // NavigationService.NavMenuItemsChanged += OnNavMenuItemsChanged; 
+        NavigationItems = NavigationService.GetNavigationItems(CurrentUserId);
+        StateHasChanged();
     }
 
-    protected override async Task OnInitializedAsync()
+    private void OnNavMenuItemsChanged(object sender, EventArgs e)
     {
-        NavigationItems = await GetNavigationItems();
+        NavigationItems = NavigationService.GetNavigationItems(CurrentUserId);
+        StateHasChanged();
     }
 }

@@ -13,7 +13,7 @@
 
         Task<List<ExistingPlaylistDto>> GetExistingPlaylists ();
 
-        Task<List<MyPlaylistDto>> GetMyPlayLists (string userId);
+        List<MyPlaylistDto> GetMyPlayLists (string userId);
 
         Task<PlayListResponseDto> CreatePlaylist(string playlistName, long trackId, string userId);
     }
