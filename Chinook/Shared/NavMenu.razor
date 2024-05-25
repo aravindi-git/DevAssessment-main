@@ -34,12 +34,11 @@
 
 @code {
     [Parameter] public string CurrentUserId { get; set; }
+    [Parameter] public List<NavigationItem> NavigationItems { get; set; }
     [Inject] NavigationService NavigationService { get; set; }
 
     private bool collapseNavMenu = true;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private List<NavigationItem> NavigationItems;
 
     private void ToggleNavMenu()
     {
@@ -48,14 +47,17 @@
 
     protected override void OnInitialized()
     {
-        // NavigationService.NavMenuItemsChanged += OnNavMenuItemsChanged; 
-        NavigationItems = NavigationService.GetNavigationItems(CurrentUserId);
+        NavigationService.NavMenuItemsChanged += OnNavMenuItemsChanged; 
+        StateHasChanged();
+    }
+
+    protected override void OnParametersSet()
+    {
         StateHasChanged();
     }
 
     private void OnNavMenuItemsChanged(object sender, EventArgs e)
     {
-        NavigationItems = NavigationService.GetNavigationItems(CurrentUserId);
         StateHasChanged();
     }
 }

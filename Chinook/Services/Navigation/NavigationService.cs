@@ -29,7 +29,12 @@ namespace Chinook.Services.Navigation
 
         public void AddNavMenuItem(long playlistId, string displayName)
         {
-            navigationItems.Add(new NavigationItem (displayName, $"Playlist/{playlistId}"));
+            var navItem = new NavigationItem(displayName, $"Playlist/{playlistId}");
+
+            if (!navigationItems.Contains(navItem))
+            {
+                navigationItems.Add(navItem);
+            }
             NavMenuItemsChanged?.Invoke(this, EventArgs.Empty);
         }
     }

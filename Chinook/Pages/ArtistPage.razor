@@ -94,10 +94,10 @@ else
 @code {
     [Parameter] public long ArtistId { get; set; }
     [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
-    [Inject] NavigationManager NavigationManager { get; set; }
     [Inject] IArtistService ArtistService { get; set; }
     [Inject] IAlbumService AlbumService { get; set; }
     [Inject] IPlaylistService PlaylistService { get; set; }
+    [Inject] NavigationService NavigationService { get; set; }
 
     private Modal PlaylistDialog { get; set; }
     private ArtistDto Artist;
@@ -138,17 +138,13 @@ else
         {
             track!.IsFavorite = true; 
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist My favorite tracks.";
-
-            if (result.IsNewPlaylist == true)
-            {
-                NavigationManager.Refresh();
-            }
+            NavigationService.AddNavMenuItem(result.PlaylistId, ChinookConstants.MyFavoriteTracks);
         }
         else
         {
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} did not add to playlist My favorite tracks.";
         }
-       
+
     }
 
     private async Task UnfavoriteTrack(long trackId)
@@ -182,7 +178,7 @@ else
         {
             await AddTrackToExistingPlaylist(); 
         }
-        
+
         if (!String.IsNullOrEmpty(NewPlaylistName))
         {
             await AddTrackToNewPlaylist(); 
@@ -199,7 +195,7 @@ else
         {
             CloseInfoMessage();
             InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {selectedPlaylistName}.";
-            NavigationManager.Refresh(); 
+            NavigationService.AddNavMenuItem(result.PlaylistId, selectedPlaylistName);
         }
         else
         {
@@ -216,7 +212,7 @@ else
         {
             CloseInfoMessage();
             InfoMessage = $"New playlist {NewPlaylistName} added to playlist is created .";
-            NavigationManager.Refresh();
+            NavigationService.AddNavMenuItem(result.PlaylistId, NewPlaylistName);
         }
         else
         {

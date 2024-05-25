@@ -5,7 +5,7 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu CurrentUserId="@CurrentUserId" />
+        <NavMenu CurrentUserId="@CurrentUserId" NavigationItems="@NavigationItems" />
     </div>
 
     <main>
@@ -35,14 +35,17 @@
 
 @code{
     [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    [Inject] NavigationService NavigationService { get; set; }
 
     private ErrorBoundary? ErrorBoundary; 
     private string CurrentUserId;
+    private List<NavigationItem> NavigationItems;
 
     protected override async Task OnInitializedAsync()
     {
-        await InvokeAsync(StateHasChanged);
         CurrentUserId = await GetUserId();
+        NavigationItems = NavigationService.GetNavigationItems(CurrentUserId);
+        StateHasChanged();
     }
 
     protected override void OnParametersSet()

@@ -89,7 +89,7 @@ namespace Chinook.Services.Playlist
                     await dbContext.SaveChangesAsync();
                 }
 
-                return new PlayListResponseDto() { PlaylistId= favoritePlaylistId,  SuccessfullyAdded = true, IsNewPlaylist = isNewPlaylistCreated };
+                return new PlayListResponseDto() { PlaylistId= favoritePlaylistId,  SuccessfullyAdded = true};
 
             }
             catch (Exception ex)

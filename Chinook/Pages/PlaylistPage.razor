@@ -95,7 +95,6 @@ else
             InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist My favorite tracks.";
             StateHasChanged();
             Playlist = await PlaylistService.GetTracksOfUserPlaylist(PlaylistId, CurrentUserId);
-
         }
         else
         {
